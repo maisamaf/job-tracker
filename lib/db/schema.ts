@@ -1,6 +1,6 @@
-import { relations } from "drizzle-orm";
-import { integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
+import { integer, pgEnum, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from 'drizzle-orm'
 
 export const applicationStatusesEnum = pgEnum("application_statuses", [
   "bookmarked",
@@ -37,8 +37,8 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash"),
-  imageUrl: text("image_url"),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -106,10 +106,6 @@ export const activityLog = pgTable("activity_log", {
 
 
 // relationships
-export const usersRelations = relations(users, ({ many }) => ({
-  applications: many(applications),
-  coverLetters: many(coverLetters),
-}));
 
 export const applicationsRelations = relations(
   applications,
@@ -156,6 +152,77 @@ export const activityLogRelations = relations(activityLog, ({ one }) => ({
     references: [applications.id],
   }),
 }));
+
+
+
+//  NextAuth tables 
+// Required by @auth/drizzle-adapter
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (account) => [
+    primaryKey({ columns: [account.provider, account.providerAccountId] }),
+  ],
+);
+
+export const sessions = pgTable('sessions', {
+  sessionToken: text('session_token').primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+})
+
+export const verificationTokens = pgTable(
+  'verification_tokens',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+    (vt) => [
+      primaryKey({ columns: [vt.identifier, vt.token] }),
+    ]
+)
+
+// Relations for the NextAuth tables
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}))
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}))
+
+// relations for users table
+export const usersRelations = relations(users, ({ many }) => ({
+  applications: many(applications),
+  coverLetters: many(coverLetters),
+  accounts: many(accounts),
+  sessions: many(sessions),
+}))
+
 
 // TypeScript types
 // Infer types directly from the schema

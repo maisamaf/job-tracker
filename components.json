@@ -20,5 +20,8 @@
     "hooks": "@/hooks"
   },
   "menuColor": "default",
-  "menuAccent": "subtle"
+  "menuAccent": "subtle",
+  "registries": {
+    "@fancy": "https://fancycomponents.dev/r/{name}.json"
+  }
 }

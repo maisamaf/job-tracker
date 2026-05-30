@@ -65,7 +65,7 @@ const LayersIcon = forwardRef<LayersIconHandle, LayersIconProps>(
 
     return (
       <div
-        className={cn(className)}
+        className={cn("flex gap-2",className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         {...props}
@@ -103,6 +103,7 @@ const LayersIcon = forwardRef<LayersIconHandle, LayersIconProps>(
             }}
           />
         </svg>
+        <span className="font-medium">JobTrackr</span>
       </div>
     );
   },

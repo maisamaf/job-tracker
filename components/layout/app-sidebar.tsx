@@ -31,7 +31,6 @@ export function AppSidebar() {
             <SidebarMenuButton asChild>
               <Link href="/">
                 <LogoIcon />
-                <span className="font-medium">JobTrackr</span>
               </Link>
             </SidebarMenuButton>
         </SidebarMenuButton>

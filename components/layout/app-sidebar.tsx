@@ -20,19 +20,20 @@ import {
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { LayersIcon as LogoIcon } from "./logo";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader className="h-14 justify-center">
         <SidebarMenuButton asChild>
-            <SidebarMenuButton asChild>
-              <Link href="/">
-                <LogoIcon />
-              </Link>
-            </SidebarMenuButton>
+          <SidebarMenuButton asChild>
+            <Link href="/">
+              <LogoIcon />
+            </Link>
+          </SidebarMenuButton>
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
@@ -41,6 +42,7 @@ export function AppSidebar() {
             <SidebarMenuButton
               className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
               tooltip="Add application"
+              onClick={() => router.push("/applications/new")}
             >
               <PlusIcon />
               <span>Add application</span>

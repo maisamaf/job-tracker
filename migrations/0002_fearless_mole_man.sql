@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ALTER COLUMN "scheduled_at" DROP NOT NULL;

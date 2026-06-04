@@ -12,13 +12,19 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
   },
+
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
+    "@ai-sdk/openai": "^3.0.67",
+    "@ai-sdk/react": "^3.0.196",
     "@auth/drizzle-adapter": "^1.11.2",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/utilities": "^3.2.2",
+    "@nanostores/react": "ai/react",
     "@neondatabase/serverless": "^1.1.0",
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-query": "^5.100.14",
+    "ai": "^6.0.193",
     "card": "^2.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -34,7 +40,9 @@
     "react": "19.2.4",
     "react-day-picker": "latest",
     "react-dom": "19.2.4",
+    "recharts": "^3.8.1",
     "select": "^1.1.2",
+    "server-only": "^0.0.1",
     "shadcn": "latest",
     "tailwind-merge": "^3.6.0",
     "textarea": "^0.3.0",
@@ -51,6 +59,16 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+    "authors": [
+    {
+      "name": "Maisam Afshar",
+      "email": "hi@maisam.dev"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maisamaf/application-tracker.git"
   },
   "ignoreScripts": [
     "sharp",

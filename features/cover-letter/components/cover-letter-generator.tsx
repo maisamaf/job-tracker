@@ -136,7 +136,7 @@ export function CoverLetterGenerator({
         tone,
         additionalContext,
       }),
-      modelUsed: process.env.AI_MODEL,
+      modelUsed: process.env.AI_MODEL || "",
     });
 
     if (result.error) {

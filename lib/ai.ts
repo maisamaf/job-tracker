@@ -16,11 +16,15 @@ if (typeof globalThis.TextDecoderStream === "undefined") {
       });
     }
   }
-  globalThis.TextDecoderStream = TextDecoderStream as BufferSource;
+  globalThis.TextDecoderStream = TextDecoderStream as unknown as typeof globalThis.TextDecoderStream;
 }
 
 // AI providers
-export type AIProvider = "anthropic" | "openai" | "openweb";
+export enum AIProvider {
+  ANTHROPIC = "anthropic",
+  OPENAI = "openai",
+  OPENWEB = "openweb",
+}
 
 // Default settings
 const DEFAULT_PROVIDER = (process.env.AI_PROVIDER as AIProvider) || "anthropic";
@@ -41,7 +45,7 @@ export const openwebProvider = createOpenAI({
   apiKey: process.env.OPENWEB_API_KEY || "",
   compatibility: "compatible", // enforce compatibility mode for non-OpenAI endpoints
 
-});
+} as Parameters<typeof createOpenAI>[0] & { compatibility: "strict" | "compatible" });
 interface ResolveModelOptions {
   provider?: AIProvider;
   modelName?: string;

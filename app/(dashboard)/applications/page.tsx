@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "Applications — JobTrackr",
 };
 
-// Next.js 16 — searchParams is a Promise
 interface Props {
   searchParams: Promise<{
     status?: string;
@@ -27,7 +26,6 @@ export default async function ApplicationsPage({ searchParams }: Props) {
   };
 
   return (
-    // Suspense lets the skeleton show instantly while the server fetches
     <Suspense fallback={<ApplicationsSkeleton />}>
       <ApplicationsView filters={filters} />
     </Suspense>

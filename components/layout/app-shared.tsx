@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HelpCircle, Settings, LayoutDashboard, Briefcase, Kanban, Sparkles, BarChart3 } from "lucide-react";
+import { HelpCircle, Settings, LayoutDashboard, Briefcase, Kanban, Sparkles, BarChart3, History } from "lucide-react";
 
 export type SidebarNavItem = {
 	title: string;
@@ -28,6 +28,7 @@ export const navGroups: SidebarNavGroup[] = [
       { title: "Board", path: "/board", icon: <Kanban /> },
       { title: "Cover Letters", path: "/cover-letter", icon: <Sparkles /> },
       { title: "Analytics", path: "/analytics", icon: <BarChart3 /> },
+      { title: "Activity", path: "/activity", icon: <History /> },
     ],
   },
 ];

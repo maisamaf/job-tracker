@@ -29,11 +29,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader className="h-14 justify-center">
         <SidebarMenuButton asChild>
-          <SidebarMenuButton asChild>
-            <Link href="/">
-              <LogoIcon />
-            </Link>
-          </SidebarMenuButton>
+          <Link href="/">
+            <LogoIcon />
+          </Link>
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>

@@ -11,6 +11,11 @@ Highlights
 - AI-powered cover letter generation with streaming output and history
 - Analytics and activity logs to see how your pipeline performs
 
+|  |  |
+|---:|:---|
+| ![Screenshot 1](public/01.png) | ![Screenshot 2](public/02.png) |
+
+
 ## What’s Included
 
 Core features implemented in this repository:

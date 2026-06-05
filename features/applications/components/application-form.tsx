@@ -31,7 +31,7 @@ const INITIAL_STATE: ActionState<CreateApplicationInput> = {};
 
 export function ApplicationForm({ initialData }: ApplicationFormProps) {
   const isEditing = !!initialData;
-const [date, setDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<Date | undefined>(undefined);
   // Bind the id for edit mode so the action signature matches useActionState
   const action = isEditing
     ? updateApplication.bind(null, initialData.id)
@@ -276,7 +276,6 @@ const [date, setDate] = useState<Date | undefined>(undefined);
                 </PopoverContent>
               </Popover>
             </FormField>
-            ;
           </div>
         </section>
 

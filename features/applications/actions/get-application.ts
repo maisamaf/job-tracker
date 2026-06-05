@@ -20,7 +20,6 @@ export async function getApplication(id: string) {
                 orderBy: (log, { desc }) => [desc(log.updatedAt)],
             },
             coverLetters: {
-                columns: { id: true, createdAt: true, model: true }, // no content in list
                 orderBy: (cl, { desc }) => [desc(cl.createdAt)],
             },
         },

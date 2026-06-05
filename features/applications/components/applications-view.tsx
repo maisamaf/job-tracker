@@ -9,6 +9,7 @@ import type { ApplicationsFilter } from "../types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { ExportButton } from "./export-button";
 
 interface ApplicationsViewProps {
   filters: ApplicationsFilter;
@@ -32,7 +33,7 @@ export async function ApplicationsView({ filters }: ApplicationsViewProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
             Applications
@@ -41,15 +42,18 @@ export async function ApplicationsView({ filters }: ApplicationsViewProps) {
             Track and manage your job applications
           </p>
         </div>
+        <div className="flex items-center gap-2">
+        <ExportButton />
         <Button asChild>
           <Link href="/applications/new">
             <Plus className="h-4 w-4 mr-2" />
             Add application
           </Link>
         </Button>
+        </div>
       </div>
 
-      {/* Filters — client component */}
+      {/* Filters*/}
       <ApplicationsFilters totalCount={total} />
 
       {/* Results */}

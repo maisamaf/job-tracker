@@ -126,9 +126,9 @@ Remaining / future work:
 
 - [ ] Search functionality
 - [ ] Keyword extraction
-- [ ] End-to-end tests and CI pipeline
 - [ ] Cover Letters Page
 - [ ] Settings page
+- [ ] End-to-end tests and CI pipeline
 
 
 ## License

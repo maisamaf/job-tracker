@@ -379,7 +379,7 @@ export function CoverLetterGenerator({
         {/* Output area */}
         <div
           className={cn(
-            "rounded-xl border bg-card h-80 transition-colors",
+            "rounded-xl border bg-card min-h-80 transition-colors",
             isLoading && "border-primary/30",
           )}
         >

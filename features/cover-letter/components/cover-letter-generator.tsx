@@ -303,7 +303,7 @@ export function CoverLetterGenerator({
         </div>
       </div>
 
-      {/* ── Right: Output ───────────────────────────────────────── */}
+      {/* ── Right: Output  */}
       <div className="flex flex-col gap-3 lg:sticky lg:top-6">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-semibold">
@@ -366,7 +366,7 @@ export function CoverLetterGenerator({
 
         {generatorError && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
-            <AlertTriangle className="h-4.5 w-4.5 mt-0.5 shrink-0 text-destructive" />
+            <AlertTriangle className="size-4.5 mt-0.5 shrink-0 text-destructive" />
             <div className="flex-1">
               <p className="font-semibold text-destructive">Generation failed</p>
               <p className="mt-0.5 text-xs text-destructive/90 leading-relaxed">
@@ -379,12 +379,12 @@ export function CoverLetterGenerator({
         {/* Output area */}
         <div
           className={cn(
-            "rounded-xl border bg-card h-125 transition-colors",
+            "rounded-xl border bg-card h-80 transition-colors",
             isLoading && "border-primary/30",
           )}
         >
           {!completion && !isLoading && (
-            <div className="flex flex-col items-center justify-center h-full min-h-125 p-10 text-center px-6">
+            <div className="flex flex-col items-center justify-center h-full p-10 text-center px-6">
               <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-4">
                 <Sparkles className="h-6 w-6 text-muted-foreground" />
               </div>

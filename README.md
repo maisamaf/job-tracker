@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobTrackr
+
+JobTrackr is a focused job application tracker built for engineers who want fewer distractions and more clarity while searching for roles. Add every application, keep recruiter and interview details in one place, and use built-in AI tools to speed up repetitive tasks like writing cover letters.
+
+Why it exists: job searching gets messy — bookmarks, spreadsheets, and browser tabs quickly fragment your work. JobTrackr brings everything together so you can focus on the job, not the process.
+
+Highlights
+- Centralised application tracking with a clear status pipeline
+- Kanban-style board for moving roles through your workflow
+- Per-application history (contacts, interviews, timeline)
+- AI-powered cover letter generation with streaming output and history
+- Analytics and activity logs to see how your pipeline performs
+
+## What’s Included
+
+Core features implemented in this repository:
+
+- Application tracking: add company, title, location, salary range, job URL, and full job description.
+- Status pipeline: move items through `Bookmarked → Applying → Applied → Interviewing → Offered → Rejected / Withdrawn`.
+- Kanban board: drag-and-drop board view to organise applications by stage.
+- Application detail: per-application pages with contacts, interview log, notes, and activity timeline.
+- Contact tracking: save recruiter and hiring manager information per application.
+- Interview log: record every interview with notes and outcomes.
+- Cover letter generator: AI-driven generator (streaming responses) and saved generation history.
+- Analytics dashboard: basic visualisations of pipeline health and response rates.
+- CSV export endpoint for offline analysis.
+- GitHub OAuth sign-in (NextAuth) and responsive UI components.
+
+If you explore the codebase you’ll find feature folders under `features/` and page routes under `app/` that map directly to these capabilities.
+
+## Tech Stack
+
+Frontend
+
+- Next.js 16 App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui primitives
+- TanStack Query for client data fetching
+
+Backend & infra
+
+- Next.js Server Actions for server-side mutations
+- PostgreSQL (development targeted for Neon)
+- Drizzle ORM for schema and queries
+- NextAuth v5 (GitHub OAuth)
+
+AI
+
+- Streaming AI via Vercel AI SDK
+- Support for Anthropic (Claude) and OpenWeb/OpenAI backends via config
+
+Tooling
+
+- Drizzle Kit for migrations
+- Zod for runtime validation
+- ESLint for linting
+
+## Project Structure (quick)
+
+High-level layout — vertical feature-based ordering.
+
+```
+app/                 # Next.js app routes and pages (App Router)
+components/          # Shared UI and layout components
+features/            # Business logic per feature (applications, analytics, cover-letter, etc.)
+lib/                 # DB client, helpers
+types/               # Type augmentations
+```
+
+## Database Schema (summary)
+
+Tables: `users`, `applications`, `contacts`, `interviews`, `cover_letters`, `activity_log`.
+
+- `activity_log` records changes over time and powers analytics.
+- `cover_letters` stores prompt context, model metadata, and the generated output.
 
 ## Getting Started
 
-First, run the development server:
+Prereqs
+
+- Node.js 18+
+- A PostgreSQL database (Neon recommended for convenience)
+- GitHub OAuth app (for authentication)
+- An Anthrop​ic or OpenAI API key if you want built-in AI features
+
+Quick setup
 
 ```bash
+git clone https://github.com/maisamaf/application-tracker.git
+cd application-tracker
+npm install
+cp .env.local.example .env.local # or fill .env.local directly
+npm run db:push                   # push schema to dev DB
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run db:push
+npm run db:generate
+npm run db:migrate
+npm run db:studio
+npm run dev
+```
 
-## Learn More
+## Development Roadmap
 
-To learn more about Next.js, take a look at the following resources:
+What’s done (core):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [x] Database schema + Drizzle setup
+- [x] GitHub OAuth with NextAuth v5
+- [x] Dashboard layout shell — sidebar, navbar, auth guard
+- [x] Applications list — table, filters, search
+- [x] Add / edit application form
+- [x] Application detail page — contacts, interviews, timeline
+- [x] Kanban board view
+- [x] AI cover letter generator with streaming
+- [x] Analytics dashboard
+- [x] CSV export
+- [ ] Landing Page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Remaining / future work:
 
-## Deploy on Vercel
+- [ ] Search functionality
+- [ ] Keyword extraction
+- [ ] End-to-end tests and CI pipeline
+- [ ] Cover Letters Page
+- [ ] Settings page
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT

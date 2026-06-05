@@ -9,28 +9,24 @@ import { cn } from "@/lib/utils";
 interface CollapsibleTextareaProps
   extends React.ComponentProps<typeof Textarea> {
   label: React.ReactNode;
-  threshold?: number;
+  maxLength?: number;
   containerClassName?: string;
-  collapsedHeightClass?: string;
-  fadeFromClass?: string;
 }
 
 export function CollapsibleTextarea({
   label,
   value = "",
   onChange,
-  threshold = 300,
+  maxLength = 300,
   className,
   containerClassName,
-  collapsedHeightClass = "h-[160px] max-h-[160px]",
-  fadeFromClass = "from-background",
   id,
   style,
   ...props
 }: CollapsibleTextareaProps) {
   const [expanded, setExpanded] = React.useState(false);
   const textValue = typeof value === "string" ? value : "";
-  const showToggle = textValue.length > threshold;
+  const showToggle = textValue.length > maxLength;
 
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
@@ -67,18 +63,19 @@ export function CollapsibleTextarea({
       </div>
 
       <div className="relative w-full">
-
         <Textarea
           id={id}
           value={value}
           onChange={onChange}
           className={cn(
             className,
-            !expanded && showToggle && `${collapsedHeightClass} overflow-hidden resize-none z-0`,
+            !expanded &&
+              showToggle &&
+              ` field-sizing-fixed overflow-hidden resize-none z-0`,
           )}
           style={{
-            ...style,
-            ...(!expanded && showToggle ? { ["fieldSizing"]: "fixed" } : {}),
+            ...style, 
+            minHeight: "160px",
           }}
           {...props}
         />

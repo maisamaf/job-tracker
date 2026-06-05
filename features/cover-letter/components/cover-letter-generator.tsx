@@ -191,9 +191,8 @@ export function CoverLetterGenerator({
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
             placeholder="Paste the full job description here..."
-            className="min-h-40 resize-y"
             disabled={isLoading}
-            threshold={300}
+            maxLength={300}
           />
           {jobDescription.length > 0 && jobDescription.length < 20 && (
             <p className="text-xs text-destructive">At least 20 characters</p>
@@ -215,10 +214,8 @@ export function CoverLetterGenerator({
             value={background}
             onChange={(e) => setBackground(e.target.value)}
             placeholder="Briefly describe your experience, key skills, and what makes you a strong fit. e.g. 3 years React/Next.js, built 2 SaaS products, currently doing M.Sc. CS at Passau..."
-            className="min-h-30 resize-y"
             disabled={isLoading}
-            threshold={300}
-            collapsedHeightClass="h-[120px] max-h-[120px]"
+            maxLength={300}
           />
           {background.length > 0 && background.length < 20 && (
             <p className="text-xs text-destructive">At least 20 characters</p>
@@ -308,7 +305,7 @@ export function CoverLetterGenerator({
 
       {/* ── Right: Output ───────────────────────────────────────── */}
       <div className="flex flex-col gap-3 lg:sticky lg:top-6">
-        <div className="flex items-center justify-between min-h-7">
+        <div className="flex items-center justify-between">
           <Label className="text-sm font-semibold">
             {completion ? "Generated letter" : "Output"}
           </Label>
@@ -382,13 +379,13 @@ export function CoverLetterGenerator({
         {/* Output area */}
         <div
           className={cn(
-            "rounded-xl border bg-card min-h-125 transition-colors",
+            "rounded-xl border bg-card h-125 transition-colors",
             isLoading && "border-primary/30",
           )}
         >
           {!completion && !isLoading && (
-            <div className="flex flex-col items-center justify-center h-full min-h-125 text-center px-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+            <div className="flex flex-col items-center justify-center h-full min-h-125 p-10 text-center px-6">
+              <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-4">
                 <Sparkles className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">

@@ -10,7 +10,7 @@ export default async function AuthLayout({
 
   // Already signed in — send to dashboard
   if (session?.user) {
-    redirect("/");
+    redirect("/dashboard");
   }
 
   return (

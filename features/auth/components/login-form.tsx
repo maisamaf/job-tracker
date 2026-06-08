@@ -63,7 +63,7 @@ export default function LoginForm({
                   type="submit"
                   onClick={async () => {
                     "use server";
-                    await signIn("github", { redirectTo: "/" });
+                    await signIn("github", { redirectTo: "/dashboard" });
                   }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

@@ -23,7 +23,7 @@ export const navGroups: SidebarNavGroup[] = [
   {
     label: "Main",
     items: [
-      { title: "Dashboard", path: "/", icon: <LayoutDashboard /> },
+      { title: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
       { title: "Applications", path: "/applications", icon: <Briefcase /> },
       { title: "Board", path: "/board", icon: <Kanban /> },
       { title: "Cover Letters", path: "/cover-letter", icon: <Sparkles /> },

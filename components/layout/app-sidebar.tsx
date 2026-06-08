@@ -18,7 +18,7 @@ import {
   navGroups,
 } from "@/components/layout/app-shared";
 import { PlusIcon, SearchIcon } from "lucide-react";
-import { LayersIcon as LogoIcon } from "./logo";
+import { Logo } from "./logo";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -30,7 +30,7 @@ export function AppSidebar() {
       <SidebarHeader className="h-14 justify-center">
         <SidebarMenuButton asChild>
           <Link href="/">
-            <LogoIcon />
+            <Logo />
           </Link>
         </SidebarMenuButton>
       </SidebarHeader>

@@ -7,12 +7,12 @@ import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface LayersIconHandle {
+export interface LogoHandle {
   startAnimation: () => void;
   stopAnimation: () => void;
 }
 
-interface LayersIconProps extends HTMLAttributes<HTMLDivElement> {
+interface LogoProps extends HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 
@@ -23,7 +23,7 @@ const DEFAULT_TRANSITION: Transition = {
   mass: 1,
 };
 
-const LayersIcon = forwardRef<LayersIconHandle, LayersIconProps>(
+const Logo = forwardRef<LogoHandle, LogoProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 32, ...props }, ref) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
@@ -109,6 +109,6 @@ const LayersIcon = forwardRef<LayersIconHandle, LayersIconProps>(
   },
 );
 
-LayersIcon.displayName = "LayersIcon";
+Logo.displayName = "Logo";
 
-export { LayersIcon };
+export { Logo };

@@ -1,5 +1,6 @@
 import { Briefcase, TrendingUp, Clock, CalendarCheck } from "lucide-react";
 import type { DashboardStats } from "../actions/get-dashboard-data";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 interface DashboardStatsProps {
   stats: DashboardStats;
@@ -49,9 +50,10 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
             </div>
           </div>
           <div>
-            <p className="text-3xl font-bold tracking-tight tabular-nums">
-              {item.value}
-            </p>
+            <NumberTicker
+              value={item.value}
+              className="text-3xl font-bold tracking-tight tabular-nums"
+            />
             <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
           </div>
         </div>

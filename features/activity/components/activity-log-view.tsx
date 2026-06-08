@@ -91,7 +91,7 @@ export function ActivityLogView({ entries }: ActivityLogViewProps) {
   const grouped = groupByDay(entries);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="max-w-2xl">
       <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Activity</h1>

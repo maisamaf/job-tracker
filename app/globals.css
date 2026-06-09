@@ -171,5 +171,10 @@
     }
     html {
         @apply font-sans;
+        scroll-behavior: smooth;
+    }
+    /* Offset scroll targets for the sticky navbar */
+    [id] {
+        scroll-margin-top: 4.5rem;
     }
 }

@@ -74,7 +74,7 @@ export function NavUser() {
           <DropdownMenuItem
             className="w-full cursor-pointer"
             variant="destructive"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
           >
             <LogOutIcon />
             Log out

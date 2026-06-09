@@ -9,6 +9,8 @@ import { SavedLetters } from "@/features/cover-letter/components/saved-letters";
 
 export const metadata: Metadata = { title: "Cover Letter — JobTrackr" };
 
+const PREVIEW_LIMIT = 4;
+
 interface Props {
   searchParams: Promise<{ applicationId?: string }>;
 }
@@ -19,19 +21,13 @@ export default async function CoverLetterPage({ searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  // Fetch user's applications for the picker + saved letters in parallel
-  const [userApplications, savedLetters] = await Promise.all([
+  const [userApplications, lettersResult] = await Promise.all([
     db.query.applications.findMany({
       where: eq(applications.userId, session.user.id),
-      columns: {
-        id: true,
-        company: true,
-        role: true,
-        description: true,
-      },
+      columns: { id: true, company: true, role: true, description: true },
       orderBy: (a, { desc }) => [desc(a.createdAt)],
     }),
-    getCoverLetters(),
+    getCoverLetters({ limit: PREVIEW_LIMIT }),
   ]);
 
   return (
@@ -40,7 +36,10 @@ export default async function CoverLetterPage({ searchParams }: Props) {
         applications={userApplications}
         defaultApplicationId={applicationId}
       />
-      <SavedLetters letters={savedLetters} />
+      <SavedLetters
+        letters={lettersResult.data}
+        totalCount={lettersResult.total}
+      />
     </div>
   );
 }

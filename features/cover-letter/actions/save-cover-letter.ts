@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db, coverLetters } from "@/lib/db";
 
@@ -29,6 +30,9 @@ export async function saveCoverLetter({
       model: modelUsed,
     })
     .returning({ id: coverLetters.id });
+
+  revalidatePath("/cover-letter");
+  revalidatePath("/cover-letter/all");
 
   return { id: saved.id };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useCompletion } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,12 +39,18 @@ export function CoverLetterGenerator({
   applications,
   defaultApplicationId,
 }: CoverLetterGeneratorProps) {
-  const defaultApp = defaultApplicationId && defaultApplicationId !== "none"
-    ? applications.find((a) => a.id === defaultApplicationId)
-    : null;
+  const router = useRouter();
+  const defaultApp =
+    defaultApplicationId && defaultApplicationId !== "none"
+      ? applications.find((a) => a.id === defaultApplicationId)
+      : null;
 
-  const [selectedAppId, setSelectedAppId] = useState(defaultApplicationId ?? "none");
-  const [jobDescription, setJobDescription] = useState(defaultApp?.description ?? "");
+  const [selectedAppId, setSelectedAppId] = useState(
+    defaultApplicationId ?? "none",
+  );
+  const [jobDescription, setJobDescription] = useState(
+    defaultApp?.description ?? "",
+  );
   const [background, setBackground] = useState("");
   const [additionalContext, setAdditionalContext] = useState("");
   const [tone, setTone] = useState<CoverLetterTone>("professional");
@@ -63,7 +70,8 @@ export function CoverLetterGenerator({
       api: "/api/cover-letter",
       onError: (error) => {
         console.error("Generation error:", error);
-        let errorMessage = "An error occurred during generation. Please try again.";
+        let errorMessage =
+          "An error occurred during generation. Please try again.";
         try {
           const parsed = JSON.parse(error.message);
           if (parsed.error) {
@@ -71,10 +79,15 @@ export function CoverLetterGenerator({
           }
         } catch {
           if (error.message) {
-            if (error.message.includes("401") || error.message.toLowerCase().includes("unauthorised")) {
-              errorMessage = "Your session has expired or you are unauthorized. Please sign in again.";
+            if (
+              error.message.includes("401") ||
+              error.message.toLowerCase().includes("unauthorised")
+            ) {
+              errorMessage =
+                "Your session has expired or you are unauthorized. Please sign in again.";
             } else if (error.message.includes("429")) {
-              errorMessage = "AI rate limit or token limit exceeded. Please try again in a few minutes.";
+              errorMessage =
+                "AI rate limit or token limit exceeded. Please try again in a few minutes.";
             } else {
               errorMessage = error.message;
             }
@@ -143,6 +156,7 @@ export function CoverLetterGenerator({
       setSaveError(result.error);
     } else {
       setSaved(true);
+      router.refresh();
     }
   }
 
@@ -151,7 +165,7 @@ export function CoverLetterGenerator({
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-      {/* ── Left: Form ─────────────────────────────────────────── */}
+      {/* ── Left: Form  */}
       <div className="flex flex-col gap-5">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -368,7 +382,9 @@ export function CoverLetterGenerator({
           <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
             <AlertTriangle className="size-4.5 mt-0.5 shrink-0 text-destructive" />
             <div className="flex-1">
-              <p className="font-semibold text-destructive">Generation failed</p>
+              <p className="font-semibold text-destructive">
+                Generation failed
+              </p>
               <p className="mt-0.5 text-xs text-destructive/90 leading-relaxed">
                 {generatorError}
               </p>

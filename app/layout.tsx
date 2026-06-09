@@ -17,8 +17,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Job Application Tracker",
-  description: "Track your job applications and interviews",
+  title: {
+    default: "JobTrackr | Your job search manager",
+    template: "%s | JobTrackr",
+  },
+  description:
+    "Track your job applications and interviews in one place. Stay organized and land your dream job faster.",
+  keywords: [
+    "job application tracker",
+    "job search",
+    "interview tracker",
+    "career management",
+    "application management",
+  ],
+  authors: [{ name: "JobTrackr" }],
+  openGraph: {
+    type: "website",
+    siteName: "JobTrackr | Your job search manager",
+    title: "JobTrackr | Your job search manager",
+    description:
+      "Track your job applications and interviews in one place. Stay organized and land your dream job faster.",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1260,
+        height: 630,
+        alt: "Job Application Tracker",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JobTrackr | Your job search manager",
+    description:
+      "Track your job applications and interviews in one place. Stay organized and land your dream job faster.",
+    images: ["/images/og-image.png"],
+  },
 };
 
 export default function RootLayout({

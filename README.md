@@ -13,7 +13,7 @@ Highlights
 
 |  |  |
 |---:|:---|
-| ![Screenshot 1](public/01.png) | ![Screenshot 2](public/02.png) |
+| ![Screenshot 1](public/images/01.png) | ![Screenshot 2](public/images/02.png) |
 
 
 ## What’s Included
@@ -92,8 +92,8 @@ Prereqs
 Quick setup
 
 ```bash
-git clone https://github.com/maisamaf/application-tracker.git
-cd application-tracker
+git clone https://github.com/maisamaf/job-tracker.git
+cd job-tracker
 npm install
 cp .env.local.example .env.local # or fill .env.local directly
 npm run db:push                   # push schema to dev DB
@@ -125,13 +125,11 @@ What’s done (core):
 - [x] AI cover letter generator with streaming
 - [x] Analytics dashboard
 - [x] CSV export
-- [ ] Landing Page
+- [x] Landing Page
 
 Remaining / future work:
 
-- [ ] Search functionality
 - [ ] Keyword extraction
-- [ ] Cover Letters Page
 - [ ] Settings page
 - [ ] End-to-end tests and CI pipeline
 

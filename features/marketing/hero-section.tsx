@@ -1,4 +1,4 @@
-import { signIn } from "@/auth";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { FadeIn } from "./fade-in";
@@ -78,21 +78,16 @@ export function HeroSection() {
 
         {/* CTAs */}
         <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
-          <form
-            action={async () => {
-              "use server";
-              await signIn("github", { redirectTo: "/dashboard" });
-            }}
+          <Button
+            size="lg"
+            className="gap-2 px-7 text-sm font-semibold shadow-lg shadow-primary/20"
+            asChild
           >
-            <Button
-              type="submit"
-              size="lg"
-              className="gap-2 px-7 text-sm font-semibold shadow-lg shadow-primary/20"
-            >
+            <Link href="/login">
               Get started free
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </form>
+            </Link>
+          </Button>
           <Button
             variant="outline"
             size="lg"

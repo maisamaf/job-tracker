@@ -1,4 +1,4 @@
-import { signIn } from "@/auth";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
 import { FadeIn } from "./fade-in";
@@ -47,20 +47,13 @@ export function CtaSection() {
                     </li>
                   ))}
                 </ul>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signIn("github", { redirectTo: "/dashboard" });
-                  }}
+                <Button
+                  size="lg"
+                  className="w-full bg-white text-primary hover:bg-white/90"
+                  asChild
                 >
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full bg-white text-primary hover:bg-white/90"
-                  >
-                    Get started free
-                  </Button>
-                </form>
+                  <Link href="/login">Get started free</Link>
+                </Button>
               </div>
             </div>
 

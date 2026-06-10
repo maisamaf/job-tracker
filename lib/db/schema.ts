@@ -1,6 +1,13 @@
-
-import { integer, pgEnum, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { relations } from 'drizzle-orm'
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const applicationStatusesEnum = pgEnum("application_statuses", [
   "bookmarked",
@@ -37,16 +44,18 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  passwordHash: text("password_hash"),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-
 export const applications = pgTable("applications", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   company: text("company").notNull(),
   role: text("role").notNull(),
   location: text("location"),
@@ -60,28 +69,32 @@ export const applications = pgTable("applications", {
   appliedAt: timestamp("applied_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-})
+});
 
 export const contacts = pgTable("contacts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  applicationId: uuid("application_id").references(() => applications.id, { onDelete: "cascade" }),
+  applicationId: uuid("application_id").references(() => applications.id, {
+    onDelete: "cascade",
+  }),
   name: text("name").notNull(),
   email: text("email"),
   role: text("role"),
   linkedinUrl: text("linkedin_url"),
   notes: text("notes"),
-})
+});
 
 export const interviews = pgTable("interviews", {
   id: uuid("id").primaryKey().defaultRandom(),
-  applicationId: uuid("application_id").references(() => applications.id, { onDelete: "cascade" }),
+  applicationId: uuid("application_id").references(() => applications.id, {
+    onDelete: "cascade",
+  }),
   scheduledAt: timestamp("scheduled_at"),
   type: interviewTypeEnum("type").notNull().default("phone_screen"),
   notes: text("notes"),
   outcome: interviewOutcomeEnum("outcome").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-})
+});
 
 export const coverLetters = pgTable("cover_letters", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -97,13 +110,14 @@ export const coverLetters = pgTable("cover_letters", {
 
 export const activityLog = pgTable("activity_log", {
   id: uuid("id").primaryKey().defaultRandom(),
-  applicationId: uuid("application_id").references(() => applications.id, { onDelete: "cascade" }),
+  applicationId: uuid("application_id").references(() => applications.id, {
+    onDelete: "cascade",
+  }),
   fieldChanged: text("field_changed").notNull(),
   oldValue: text("old_value"),
   newValue: text("new_value"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-})
-
+});
 
 // relationships
 
@@ -153,9 +167,7 @@ export const activityLogRelations = relations(activityLog, ({ one }) => ({
   }),
 }));
 
-
-
-//  NextAuth tables 
+//  NextAuth tables
 // Required by @auth/drizzle-adapter
 
 export const accounts = pgTable(
@@ -180,25 +192,23 @@ export const accounts = pgTable(
   ],
 );
 
-export const sessions = pgTable('sessions', {
-  sessionToken: text('session_token').primaryKey(),
-  userId: uuid('user_id')
+export const sessions = pgTable("sessions", {
+  sessionToken: text("session_token").primaryKey(),
+  userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  expires: timestamp('expires', { mode: 'date' }).notNull(),
-})
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
 
 export const verificationTokens = pgTable(
-  'verification_tokens',
+  "verification_tokens",
   {
-    identifier: text('identifier').notNull(),
-    token: text('token').notNull(),
-    expires: timestamp('expires', { mode: 'date' }).notNull(),
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
   },
-    (vt) => [
-      primaryKey({ columns: [vt.identifier, vt.token] }),
-    ]
-)
+  (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })],
+);
 
 // Relations for the NextAuth tables
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -206,14 +216,14 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
     fields: [accounts.userId],
     references: [users.id],
   }),
-}))
+}));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
     references: [users.id],
   }),
-}))
+}));
 
 // relations for users table
 export const usersRelations = relations(users, ({ many }) => ({
@@ -221,8 +231,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   coverLetters: many(coverLetters),
   accounts: many(accounts),
   sessions: many(sessions),
-}))
-
+}));
 
 // TypeScript types
 // Infer types directly from the schema

@@ -1,7 +1,20 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db, users, accounts, sessions, verificationTokens } from "@/lib/db";
+import { verifyPassword } from "@/features/auth/lib/password";
+
+const credentialsSchema = z.object({
+  email: z
+    .email()
+    .trim()
+    .transform((email) => email.toLowerCase()),
+  password: z.string().min(1),
+});
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db, {
@@ -10,7 +23,48 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }),
-  providers: [GitHub],
+  providers: [
+    GitHub({ allowDangerousEmailAccountLinking: true }),
+    Google({ allowDangerousEmailAccountLinking: true }),
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsed = credentialsSchema.safeParse(credentials);
+
+        if (!parsed.success) return null;
+
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, parsed.data.email),
+          columns: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            passwordHash: true,
+          },
+        });
+
+        if (!user?.passwordHash) return null;
+
+        const isValidPassword = await verifyPassword(
+          parsed.data.password,
+          user.passwordHash,
+        );
+
+        if (!isValidPassword) return null;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
+      },
+    }),
+  ],
   session: {
     strategy: "jwt",
   },

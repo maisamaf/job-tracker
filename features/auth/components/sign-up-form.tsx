@@ -12,13 +12,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-  signInWithCredentials,
   signInWithGitHub,
   signInWithGoogle,
-  type SignInState,
 } from "@/features/auth/actions/sign-in";
+import { signUp, type SignUpState } from "@/features/auth/actions/sign-up";
 
-const INITIAL_STATE: SignInState = {};
+const INITIAL_STATE: SignUpState = {};
 
 function GitHubIcon() {
   return (
@@ -50,34 +49,23 @@ function GoogleIcon() {
   );
 }
 
-export default function LoginForm({
+export default function SignUpForm({
   className,
-  serverError,
   ...props
-}: React.ComponentProps<"div"> & { serverError?: string }) {
-  const [state, formAction, isPending] = useActionState(
-    signInWithCredentials,
-    INITIAL_STATE,
-  );
+}: React.ComponentProps<"div">) {
+  const [state, formAction, isPending] = useActionState(signUp, INITIAL_STATE);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       {/* Heading */}
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create an account
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Sign in to your account to continue
+          Start tracking your job search for free
         </p>
       </div>
-
-      {serverError && (
-        <div
-          className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
-          role="alert"
-        >
-          {serverError}
-        </div>
-      )}
 
       <FieldGroup>
         {/* OAuth buttons */}
@@ -96,15 +84,34 @@ export default function LoginForm({
           </form>
         </Field>
 
-        <FieldSeparator>or continue with email</FieldSeparator>
+        <FieldSeparator>or sign up with email</FieldSeparator>
 
-        {/* Credentials form */}
+        {/* Registration form */}
         <form action={formAction} className="contents">
           {state.errors?.root && (
             <p className="text-sm text-destructive" role="alert">
               {state.errors.root[0]}
             </p>
           )}
+          <Field>
+            <FieldLabel htmlFor="name">Full name</FieldLabel>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Jane Smith"
+              autoComplete="name"
+              defaultValue={state.values?.name}
+              aria-invalid={!!state.errors?.name}
+              aria-describedby={state.errors?.name ? "name-error" : undefined}
+              required
+            />
+            {state.errors?.name && (
+              <p className="text-sm text-destructive" id="name-error">
+                {state.errors.name[0]}
+              </p>
+            )}
+          </Field>
           <Field>
             <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input
@@ -125,48 +132,68 @@ export default function LoginForm({
             )}
           </Field>
           <Field>
-            <div className="flex items-center">
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <a
-                href="#"
-                className="ml-auto text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                Forgot password?
-              </a>
-            </div>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
             <Input
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               aria-invalid={!!state.errors?.password}
               aria-describedby={
                 state.errors?.password ? "password-error" : undefined
               }
               required
             />
-            {state.errors?.password && (
+            {state.errors?.password ? (
               <p className="text-sm text-destructive" id="password-error">
                 {state.errors.password[0]}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Must be at least 8 characters
+              </p>
+            )}
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              aria-invalid={!!state.errors?.confirmPassword}
+              aria-describedby={
+                state.errors?.confirmPassword
+                  ? "confirm-password-error"
+                  : undefined
+              }
+              required
+            />
+            {state.errors?.confirmPassword && (
+              <p
+                className="text-sm text-destructive"
+                id="confirm-password-error"
+              >
+                {state.errors.confirmPassword[0]}
               </p>
             )}
           </Field>
           <Field>
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Signing in..." : "Sign in"}
+              {isPending ? "Creating account..." : "Create account"}
             </Button>
           </Field>
         </form>
       </FieldGroup>
 
-      {/* Sign up link */}
+      {/* Sign in link */}
       <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        Already have an account?{" "}
         <Link
-          href="/sign-up"
+          href="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Sign up free
+          Sign in
         </Link>
       </p>
     </div>

@@ -29,7 +29,7 @@ Core features implemented in this repository:
 - Cover letter generator: AI-driven generator (streaming responses) and saved generation history.
 - Analytics dashboard: basic visualisations of pipeline health and response rates.
 - CSV export endpoint for offline analysis.
-- GitHub OAuth sign-in (NextAuth) and responsive UI components.
+- Authentication: GitHub OAuth, Google OAuth, and email/password sign-up and sign-in (NextAuth v5) with a branded split-panel auth UI.
 
 If you explore the codebase you’ll find feature folders under `features/` and page routes under `app/` that map directly to these capabilities.
 
@@ -48,7 +48,7 @@ Backend & infra
 - Next.js Server Actions for server-side mutations
 - PostgreSQL (development targeted for Neon)
 - Drizzle ORM for schema and queries
-- NextAuth v5 (GitHub OAuth)
+- NextAuth v5 — GitHub OAuth, Google OAuth, and Credentials (email + scrypt-hashed password)
 
 AI
 
@@ -86,8 +86,9 @@ Prereqs
 
 - Node.js 18+
 - A PostgreSQL database (Neon recommended for convenience)
-- GitHub OAuth app (for authentication)
-- An Anthrop​ic or OpenAI API key if you want built-in AI features
+- GitHub OAuth app
+- Google OAuth app (Cloud Console → APIs & Services → Credentials)
+- An Anthropic, OpenAI or Gemini API key if you want built-in AI features
 
 Quick setup
 
@@ -116,7 +117,7 @@ npm run dev
 What’s done (core):
 
 - [x] Database schema + Drizzle setup
-- [x] GitHub OAuth with NextAuth v5
+- [x] GitHub OAuth, Google OAuth, and email/password auth with NextAuth v5
 - [x] Dashboard layout shell — sidebar, navbar, auth guard
 - [x] Applications list — table, filters, search
 - [x] Add / edit application form

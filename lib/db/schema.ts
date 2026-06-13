@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -40,6 +41,13 @@ export const interviewOutcomeEnum = pgEnum("interview_outcome", [
   "pending",
 ]);
 
+export const jobPostingStatusEnum = pgEnum("job_posting_status", [
+  "pending",
+  "processing",
+  "ready",
+  "failed",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
@@ -47,8 +55,37 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash"),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
+  aiProvider: text("ai_provider"),
+  aiModel: text("ai_model"),
+  embeddingDimensions: integer("embedding_dimensions"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const userProfiles = pgTable("user_profiles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  // what the user pastes or uploads
+  cvRawText: text("cv_raw_text"),
+
+
+  skills: text("skills"), // JSON: string[]
+  experience: text("experience"), // JSON: { company, role, years, bullets[] }[]
+  education: text("education"), // JSON: { degree, institution, year }[]
+  languages: text("languages"), // JSON: string[]
+  summary: text("summary"), // AI-generated 2-sentence profile summary
+
+  // Vector embedding of the full CV (1536-dim for OpenAI, 1024 for others)
+  // Vector embedding of the full CV (1536-dim for OpenAI, 1024 for others)
+  // Requires: CREATE EXTENSION vector; in your DB migration
+  embedding: vector("embedding", { dimensions: 1536 }),
+
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const applications = pgTable("applications", {
@@ -67,6 +104,85 @@ export const applications = pgTable("applications", {
   salaryMax: integer("salary_max"),
   type: applicationTypesEnum("type").notNull().default("full-time"),
   appliedAt: timestamp("applied_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const jobPostings = pgTable("job_postings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .unique()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  // Raw scraped text
+  rawText: text("raw_text"),
+
+  // Structured extraction
+  requiredSkills: text("required_skills"), // JSON: string[]
+  niceToHave: text("nice_to_have"), // JSON: string[]
+  seniorityLevel: text("seniority_level"), // "junior" | "mid" | "senior"
+  techStack: text("tech_stack"), // JSON: string[]
+  responsibilities: text("responsibilities"), // JSON: string[]
+  companySize: text("company_size"), // "startup" | "mid" | "enterprise"
+  remotePolicy: text("remote_policy"), // "remote" | "hybrid" | "onsite"
+
+  // Processing state
+  status: jobPostingStatusEnum("status").notNull().default("pending"),
+  errorMessage: text("error_message"),
+
+  // Vector embedding of the posting
+  embedding: vector("embedding", { dimensions: 1536 }),
+
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const gapAnalyses = pgTable("gap_analyses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  // Scores (0–100)
+  overallMatchScore: integer("overall_match_score"),
+  skillMatchScore: integer("skill_match_score"),
+  experienceScore: integer("experience_score"),
+
+  // Structured results
+  matchedSkills: text("matched_skills"), // JSON: string[]
+  missingSkills: text("missing_skills"), // JSON: string[]
+  partialSkills: text("partial_skills"), // JSON: string[]
+  recommendations: text("recommendations"), // JSON: string[]
+  summary: text("summary"), // 3-sentence human summary
+
+  modelUsed: text("model_used").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const interviewQuestions = pgTable("interview_questions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  category: text("category").notNull(),
+  // "technical" | "behavioral" | "role-specific" | "culture"
+
+  question: text("question").notNull(),
+  suggestedAnswer: text("suggested_answer"), // AI draft based on user's CV
+  userAnswer: text("user_answer"), // user writes their own
+  difficulty: text("difficulty"), // "easy" | "medium" | "hard"
+
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -132,6 +248,12 @@ export const applicationsRelations = relations(
     interviews: many(interviews),
     coverLetters: many(coverLetters),
     activityLog: many(activityLog),
+    jobPosting: one(jobPostings, {
+      fields: [applications.id],
+      references: [jobPostings.applicationId],
+    }),
+    gapAnalyses: many(gapAnalyses),
+    interviewQuestions: many(interviewQuestions),
   }),
 );
 
@@ -164,6 +286,41 @@ export const activityLogRelations = relations(activityLog, ({ one }) => ({
   application: one(applications, {
     fields: [activityLog.applicationId],
     references: [applications.id],
+  }),
+}));
+
+export const jobPostingsRelations = relations(jobPostings, ({ one }) => ({
+  application: one(applications, {
+    fields: [jobPostings.applicationId],
+    references: [applications.id],
+  }),
+  user: one(users, {
+    fields: [jobPostings.userId],
+    references: [users.id],
+  }),
+}));
+
+export const gapAnalysesRelations = relations(gapAnalyses, ({ one }) => ({
+  application: one(applications, {
+    fields: [gapAnalyses.applicationId],
+    references: [applications.id],
+  }),
+}));
+
+export const interviewQuestionsRelations = relations(
+  interviewQuestions,
+  ({ one }) => ({
+    application: one(applications, {
+      fields: [interviewQuestions.applicationId],
+      references: [applications.id],
+    }),
+  }),
+);
+
+export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [userProfiles.userId],
+    references: [users.id],
   }),
 }));
 
@@ -253,3 +410,12 @@ export type CoverLetter = typeof coverLetters.$inferSelect;
 export type NewCoverLetter = typeof coverLetters.$inferInsert;
 
 export type ActivityLog = typeof activityLog.$inferSelect;
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type NewUserProfile = typeof userProfiles.$inferInsert;
+export type JobPosting = typeof jobPostings.$inferSelect;
+export type NewJobPosting = typeof jobPostings.$inferInsert;
+export type GapAnalysis = typeof gapAnalyses.$inferSelect;
+export type NewGapAnalysis = typeof gapAnalyses.$inferInsert;
+export type InterviewQuestion = typeof interviewQuestions.$inferSelect;
+export type NewInterviewQuestion = typeof interviewQuestions.$inferInsert;

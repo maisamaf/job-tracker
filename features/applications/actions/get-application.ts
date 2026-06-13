@@ -22,6 +22,7 @@ export async function getApplication(id: string) {
             coverLetters: {
                 orderBy: (cl, { desc }) => [desc(cl.createdAt)],
             },
+            jobPosting: true,
         },
     })
 

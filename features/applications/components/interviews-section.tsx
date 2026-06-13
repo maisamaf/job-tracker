@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useRef, useState } from "react"
+import { useActionState, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -41,35 +41,43 @@ const OUTCOME_OPTIONS = [
 ]
 
 interface InterviewsSectionProps {
-  applicationId: string
-  interviews: Interview[]
+  applicationId: string;
+  interviews: Interview[];
+  compact?: boolean;
 }
 
 const INITIAL_STATE: ActionState = {}
 
-function AddInterviewDialog({ applicationId }: { applicationId: string }) {
-   const [open, setOpen] = useState(false);
-   const [prevSuccess, setPrevSuccess] = useState(false);
-   const boundAction = createInterview.bind(null, applicationId);
-   const [state, action, isPending] = useActionState(
-     boundAction,
-     INITIAL_STATE,
-   );
+export interface AddInterviewDialogProps {
+  applicationId: string;
+  trigger?: React.ReactNode;
+}
 
-   if (state.success && !prevSuccess) {
-     setPrevSuccess(true);
-     setOpen(false);
-   } else if (!state.success && prevSuccess) {
-     setPrevSuccess(false);
-   }
+export function AddInterviewDialog({ applicationId, trigger }: AddInterviewDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [prevSuccess, setPrevSuccess] = useState(false);
+  const boundAction = createInterview.bind(null, applicationId);
+  const [state, action, isPending] = useActionState(
+    boundAction,
+    INITIAL_STATE,
+  );
+
+  if (state.success && !prevSuccess) {
+    setPrevSuccess(true);
+    setOpen(false);
+  } else if (!state.success && prevSuccess) {
+    setPrevSuccess(false);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs">
-          <Plus className="h-3 w-3" />
-          Log interview
-        </Button>
+        {trigger || (
+          <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs">
+            <Plus className="size-3" />
+            Log interview
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -169,6 +177,7 @@ export function InterviewsSection({
   applicationId,
   interviews,
 }: InterviewsSectionProps) {
+
   return (
     <section>
       <div className="flex items-center justify-between mb-3">

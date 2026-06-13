@@ -28,7 +28,12 @@ interface ContactsSectionProps {
 
 const INITIAL_STATE: ActionState = {};
 
-function AddContactDialog({ applicationId }: { applicationId: string }) {
+export interface AddContactDialogProps {
+  applicationId: string;
+  trigger?: React.ReactNode;
+}
+
+export function AddContactDialog({ applicationId, trigger }: AddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [prevSuccess, setPrevSuccess] = useState(false);
   const boundAction = createContact.bind(null, applicationId);
@@ -44,10 +49,12 @@ function AddContactDialog({ applicationId }: { applicationId: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs">
-          <Plus className="h-3 w-3" />
-          Add contact
-        </Button>
+        {trigger || (
+          <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs">
+            <Plus className="h-3 w-3" />
+            Add contact
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -149,7 +156,7 @@ export function ContactsSection({
 
       {contacts.length === 0 ? (
         <div className="rounded-lg border border-dashed bg-muted/20 py-8 text-center">
-          <UserCircle2 className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+          <UserCircle2 className="size-8 mx-auto text-muted-foreground/50 mb-2" />
           <p className="text-sm text-muted-foreground">No contacts yet</p>
         </div>
       ) : (
@@ -206,7 +213,7 @@ export function ContactsSection({
                   type="submit"
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                  className="size-7 text-muted-foreground hover:text-destructive shrink-0"
                 >
                   <TrashIcon size={18} />
                   <span className="sr-only">Delete contact</span>

@@ -39,20 +39,7 @@ export function NotesSection({
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold">Notes</h2>
-        {!isEditing && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-            className="h-7 gap-1.5 text-xs text-muted-foreground"
-          >
-            <Pencil className="h-3 w-3" />
-            Edit
-          </Button>
-        )}
-      </div>
+      <h2 className="text-sm font-semibold">Notes</h2>
 
       {isEditing ? (
         <form action={action}>

@@ -21,13 +21,16 @@ import {
   ChevronUp,
   AlertTriangle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCleanJobDescription } from "@/lib/utils";
 
 interface Application {
   id: string;
   company: string;
   role: string;
   description: string | null;
+  jobPosting?: {
+    rawText: string | null;
+  } | null;
 }
 
 interface CoverLetterGeneratorProps {
@@ -49,9 +52,8 @@ export function CoverLetterGenerator({
     defaultApplicationId ?? "none",
   );
   const [jobDescription, setJobDescription] = useState(
-    defaultApp?.description ?? "",
+    getCleanJobDescription(defaultApp?.description, defaultApp?.jobPosting?.rawText),
   );
-  const [background, setBackground] = useState("");
   const [additionalContext, setAdditionalContext] = useState("");
   const [tone, setTone] = useState<CoverLetterTone>("professional");
   const [showContext, setShowContext] = useState(false);
@@ -68,6 +70,7 @@ export function CoverLetterGenerator({
   const { completion, complete, isLoading, stop, setCompletion } =
     useCompletion({
       api: "/api/cover-letter",
+      streamProtocol: "text",
       onError: (error) => {
         console.error("Generation error:", error);
         let errorMessage =
@@ -104,14 +107,14 @@ export function CoverLetterGenerator({
       setSaved(false);
       if (appId !== "none") {
         const app = applications.find((a) => a.id === appId);
-        setJobDescription(app?.description ?? "");
+        setJobDescription(getCleanJobDescription(app?.description, app?.jobPosting?.rawText));
       }
     },
-    [applications],
+    [applications, setSelectedAppId, setSaved, setJobDescription],
   );
 
   async function handleGenerate() {
-    if (!jobDescription.trim() || !background.trim()) return;
+    if (!jobDescription.trim()) return;
     setSaved(false);
     setSaveError(null);
     setGeneratorError(null);
@@ -120,7 +123,6 @@ export function CoverLetterGenerator({
     await complete("", {
       body: {
         jobDescription,
-        background,
         tone,
         additionalContext: additionalContext || undefined,
         company: selectedApp?.company,
@@ -145,7 +147,6 @@ export function CoverLetterGenerator({
       content: completion,
       promptContext: JSON.stringify({
         jobDescription,
-        background,
         tone,
         additionalContext,
       }),
@@ -160,8 +161,7 @@ export function CoverLetterGenerator({
     }
   }
 
-  const canGenerate =
-    jobDescription.trim().length >= 20 && background.trim().length >= 20;
+  const canGenerate = jobDescription.trim().length >= 20;
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
@@ -213,28 +213,6 @@ export function CoverLetterGenerator({
           )}
         </div>
 
-        {/* Background */}
-        <div className="flex flex-col gap-1.5">
-          <CollapsibleTextarea
-            id="background"
-            label={
-              <>
-                Your background{" "}
-                <span className="text-destructive" aria-hidden>
-                  *
-                </span>
-              </>
-            }
-            value={background}
-            onChange={(e) => setBackground(e.target.value)}
-            placeholder="Briefly describe your experience, key skills, and what makes you a strong fit. e.g. 3 years React/Next.js, built 2 SaaS products, currently doing M.Sc. CS at Passau..."
-            disabled={isLoading}
-            maxLength={300}
-          />
-          {background.length > 0 && background.length < 20 && (
-            <p className="text-xs text-destructive">At least 20 characters</p>
-          )}
-        </div>
 
         {/* Tone */}
         <div className="flex flex-col gap-1.5">
@@ -408,8 +386,7 @@ export function CoverLetterGenerator({
                 Your cover letter will appear here
               </p>
               <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">
-                Fill in the job description and your background, then click
-                generate.
+                Fill in the job description, then click generate.
               </p>
             </div>
           )}

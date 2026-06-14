@@ -49,5 +49,42 @@ export async function createApplication(
     })
     .returning({ id: applications.id });
 
+  if (application.id && (data.description || data.jobUrl)) {
+    // Fire ingest → gap analysis as a sequential non-blocking chain.
+    // This way scraping doesn't block the gap analysis call — ingest completes
+    // before gap analysis runs so runGapAnalysis always finds a ready posting.
+    (async () => {
+      try {
+        const { ingestPosting } = await import("@/features/job-intel/actions/ingest-posting");
+        await ingestPosting(
+          application.id,
+          data.jobUrl || undefined,
+          data.description || undefined
+        );
+      } catch (err) {
+        console.error("Background ingest failed:", err);
+        return; // Don't attempt gap analysis if ingest failed
+      }
+      try {
+        const { db } = await import("@/lib/db");
+        const { userProfiles } = await import("@/lib/db/schema");
+        const { eq } = await import("drizzle-orm");
+        
+        const profile = await db.query.userProfiles.findFirst({
+          where: eq(userProfiles.userId, session.user.id),
+        });
+        
+        if (!profile || (!profile.cvRawText && !profile.skills)) {
+          return; // Skip analysis if profile is empty or missing
+        }
+
+        const { runGapAnalysis } = await import("@/features/gap-analysis/actions/run-gap-analysis");
+        await runGapAnalysis(application.id);
+      } catch (err) {
+        console.error("Background gap analysis failed:", err);
+      }
+    })();
+  }
+
   redirect(`/applications/${application.id}`);
 }

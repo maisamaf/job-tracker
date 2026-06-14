@@ -121,16 +121,10 @@ export function CoverLettersSection({
       </div>
 
       {coverLetters.length === 0 ? (
-        <div className="rounded-lg border border-dashed bg-muted/20 py-8 text-center">
-          <Sparkles className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-          <p className="text-sm text-muted-foreground mb-3">
-            No cover letters generated yet
+        <div className="rounded-lg border border-dashed p-4 bg-background-chip">
+          <p className="text-sm text-muted-foreground">
+            No cover letters yet. Click Generate to create one tailored to this role.
           </p>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/cover-letter?applicationId=${applicationId}`}>
-              Generate one
-            </Link>
-          </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

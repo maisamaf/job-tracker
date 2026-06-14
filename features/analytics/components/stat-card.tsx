@@ -20,23 +20,23 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card px-5 py-4 flex flex-col gap-3",
+        "rounded-2xl border border-border/40 bg-card p-5 flex flex-col gap-3.5 transition-all duration-200 hover:border-primary/25 hover:shadow-xs",
         className,
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
           {label}
         </span>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
-          <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/8 text-primary">
+          <Icon className="h-4 w-4" />
         </div>
       </div>
       <div>
-        <p className="text-3xl font-bold tracking-tight tabular-nums">
+        <p className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
           {value}
         </p>
-        {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
+        {sub && <p className="text-xs font-medium text-muted-foreground/85 mt-1.5">{sub}</p>}
       </div>
     </div>
   );

@@ -29,6 +29,27 @@
       "when": 1781009528602,
       "tag": "0003_messy_true_believers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781177877372,
+      "tag": "0004_familiar_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781179392295,
+      "tag": "0005_rapid_jocasta",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781380816025,
+      "tag": "0006_dry_blob",
+      "breakpoints": true
     }
   ]
 }

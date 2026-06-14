@@ -12,11 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   UserIcon,
-  BellIcon,
   CommandIcon,
-  LifeBuoyIcon,
-  BookOpenIcon,
-  CreditCardIcon,
   LogOutIcon,
 } from "lucide-react";
 

@@ -54,9 +54,9 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
 
       {/* Status distribution + Avg time per stage */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5">
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold">Applications by status</h2>
+        <div className="rounded-2xl border border-border/40 bg-card p-6">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-foreground">Applications by status</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               Current distribution across all stages
             </p>
@@ -64,9 +64,9 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
           <StatusChart data={data.byStatus} />
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold">Average time per stage</h2>
+        <div className="rounded-2xl border border-border/40 bg-card p-6">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-foreground">Average time per stage</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               Days spent in each status before moving on
             </p>
@@ -77,9 +77,9 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
 
       {/* Conversion funnel + Applications over time */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5">
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold">Conversion funnel</h2>
+        <div className="rounded-2xl border border-border/40 bg-card p-6">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-foreground">Conversion funnel</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               How many applications make it through each stage
             </p>
@@ -87,9 +87,9 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
           <FunnelChart data={data.funnel} />
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold">Applications over time</h2>
+        <div className="rounded-2xl border border-border/40 bg-card p-6">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-foreground">Applications over time</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               Applications added per week — last 12 weeks
             </p>

@@ -61,9 +61,9 @@ export function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="mb-6 max-w-3xl text-balance text-[clamp(40px,6vw,70px)] font-bold leading-[1.06] tracking-tight font-heading">
+        <h1 className="mb-6 max-w-3xl text-balance text-[clamp(42px,6.5vw,74px)] font-black leading-[1.04] tracking-tighter font-heading">
           Your job search, <br className="hidden sm:block" />
-          <span className="bg-linear-to-r from-primary via-primary/85 to-primary/55 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-primary via-primary/85 to-primary/60 bg-clip-text text-transparent">
             finally organized.
           </span>
         </h1>
@@ -72,15 +72,15 @@ export function HeroSection() {
           Track every application, generate tailored cover letters with AI, and
           surface insights that improve your success rate.
         </p>
-        <p className="mb-10 text-sm text-muted-foreground/80 tracking-wide mt-1">
+        <p className="mb-10 text-sm text-muted-foreground/70 tracking-wide mt-1">
           Free forever · Open source · MIT licensed
         </p>
 
         {/* CTAs */}
-        <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="mb-8 flex flex-wrap items-center justify-center gap-3.5">
           <Button
             size="lg"
-            className="gap-2 px-7 text-sm font-semibold shadow-lg shadow-primary/20"
+            className="gap-2 px-8 text-sm font-semibold shadow-xl shadow-primary/20 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
             asChild
           >
             <Link href="/login">
@@ -92,7 +92,7 @@ export function HeroSection() {
             variant="outline"
             size="lg"
             asChild
-            className="gap-2 px-6 text-sm font-semibold"
+            className="gap-2 px-7 text-sm font-semibold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] hover:bg-muted/50"
           >
             <a
               href="https://github.com/maisamaf/job-tracker.git"

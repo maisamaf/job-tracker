@@ -20,51 +20,51 @@ const STEPS: {
   body: string;
   bullets: string[];
 }[] = [
-  {
-    n: "01",
-    icon: PlusCircle,
-    title: "Add an application",
-    body: "Paste the company, role, and job description. Set a status and add private notes. Takes under a minute per role.",
-    bullets: [
-      "Track company, role, location, and salary",
-      "Set status from Bookmarked to Applied",
-      "Attach the job description and private notes",
-    ],
-  },
-  {
-    n: "02",
-    icon: Sparkles,
-    title: "Generate a cover letter",
-    body: "The saved job description pre-fills the AI prompt. Pick a tone, add your background, and get a tailored letter in seconds — not hours.",
-    bullets: [
-      "Job description auto-fills the AI form",
-      "Choose tone: professional, friendly, or bold",
-      "Letter saved to your application automatically",
-    ],
-  },
-  {
-    n: "03",
-    icon: LayoutList,
-    title: "Track your progress",
-    body: "Move applications through stages as you hear back. Log interviews, add contacts, and keep your pipeline clean without extra maintenance.",
-    bullets: [
-      "Drag cards through the Kanban pipeline",
-      "Log each interview round with type and notes",
-      "Attach recruiters and hiring managers per role",
-    ],
-  },
-  {
-    n: "04",
-    icon: TrendingUp,
-    title: "Spot what's working",
-    body: "Analytics show your response rate, slowest stages, and funnel conversion — so you can improve your approach with each new application.",
-    bullets: [
-      "Response rate and offer rate at a glance",
-      "Identify which stages take the longest",
-      "Weekly trends to spot what's improving",
-    ],
-  },
-];
+    {
+      n: "01",
+      icon: PlusCircle,
+      title: "Add an application",
+      body: "Paste the company, role, and job description. Set a status and add private notes. Takes under a minute per role.",
+      bullets: [
+        "Track company, role, location, and salary",
+        "Set status from Bookmarked to Applied",
+        "Attach the job description and private notes",
+      ],
+    },
+    {
+      n: "02",
+      icon: Sparkles,
+      title: "Generate a cover letter",
+      body: "The saved job description pre-fills the AI prompt. Pick a tone, add your background, and get a tailored letter in seconds — not hours.",
+      bullets: [
+        "Job description auto-fills the AI form",
+        "Choose tone: professional, friendly, or bold",
+        "Letter saved to your application automatically",
+      ],
+    },
+    {
+      n: "03",
+      icon: LayoutList,
+      title: "Track your progress",
+      body: "Move applications through stages as you hear back. Log interviews, add contacts, and keep your pipeline clean without extra maintenance.",
+      bullets: [
+        "Drag cards through the Kanban pipeline",
+        "Log each interview round with type and notes",
+        "Attach recruiters and hiring managers per role",
+      ],
+    },
+    {
+      n: "04",
+      icon: TrendingUp,
+      title: "Spot what's working",
+      body: "Analytics show your response rate, slowest stages, and funnel conversion — so you can improve your approach with each new application.",
+      bullets: [
+        "Response rate and offer rate at a glance",
+        "Identify which stages take the longest",
+        "Weekly trends to spot what's improving",
+      ],
+    },
+  ];
 
 export function HowSection() {
   const [active, setActive] = useState(0);
@@ -86,7 +86,7 @@ export function HowSection() {
             How it works
           </p>
         </div>
-        <h2 className="mb-12 max-w-xl text-balance text-[clamp(24px,3vw,36px)] font-semibold tracking-tight font-heading">
+        <h2 className="mb-12 max-w-xl text-balance text-[clamp(26px,3vw,38px)] font-black tracking-tight font-heading">
           From discovery to offer, tracked
         </h2>
 
@@ -109,7 +109,7 @@ export function HowSection() {
                         i < active
                           ? "border-primary bg-primary text-primary-foreground"
                           : i === active
-                            ? "border-primary bg-background text-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]"
+                            ? "border-primary bg-background text-primary ring-4 ring-primary/15"
                             : "border-border bg-background text-muted-foreground",
                       )}
                     >
@@ -134,16 +134,16 @@ export function HowSection() {
                   >
                     <p
                       className={cn(
-                        "text-sm font-medium transition-colors duration-200",
+                        "text-sm font-semibold transition-colors duration-200",
                         i === active
-                          ? "text-foreground"
-                          : "text-muted-foreground",
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       {step.title}
                     </p>
                     {i === active && (
-                      <div className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-border">
+                      <div className="mt-2.5 h-1 w-full overflow-hidden rounded-full bg-border">
                         <div
                           key={`prog-${active}`}
                           className="h-full rounded-full bg-primary"
@@ -171,7 +171,7 @@ export function HowSection() {
                     : "pointer-events-none translate-y-3 opacity-0",
                 )}
               >
-                <div className="flex h-full flex-col overflow-hidden rounded-2xl border bg-card p-8">
+                <div className="flex h-full flex-col overflow-hidden bg-card p-8">
                   {/* Icon */}
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
                     <step.icon className="h-5 w-5 text-primary" />

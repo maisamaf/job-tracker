@@ -120,6 +120,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
             inputRef.current?.focus();
           }}
         >
+          <DialogPrimitive.Title className="sr-only">
+            Search applications
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">
+            Type to search across all your job applications by company, role, or location.
+          </DialogPrimitive.Description>
+
           {/* ── Search input  */}
           <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3.5">
             {isFetching && hasQuery ? (

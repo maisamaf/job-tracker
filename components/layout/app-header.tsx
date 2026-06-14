@@ -1,13 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AppBreadcrumbs } from "@/components/layout/app-breadcrumb";
 import { CustomSidebarTrigger } from "@/components/layout/custom-sidebar-trigger";
 import { isNavItemActive, navLinks } from "@/components/layout/app-shared";
 import { NavUser } from "@/components/layout/nav-user";
-import { BellIcon } from "lucide-react";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { usePathname } from "next/navigation";
 
 export function AppHeader() {
@@ -30,9 +29,7 @@ export function AppHeader() {
         <AppBreadcrumbs page={activeItem} />
       </div>
       <div className="flex items-center gap-3">
-        <Button aria-label="Notifications" size="icon" variant="ghost">
-          <BellIcon />
-        </Button>
+        <NotificationBell />
         <Separator
           className="h-4 data-[orientation=vertical]:self-center"
           orientation="vertical"
@@ -42,3 +39,4 @@ export function AppHeader() {
     </header>
   );
 }
+

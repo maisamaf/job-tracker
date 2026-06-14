@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,24 +15,28 @@ import {
 import { FormField } from "./form-field";
 import { createApplication } from "../actions/create-application";
 import { updateApplication } from "../actions/update-application";
+import { autofillFromUrl, autofillFromText } from "../actions/autofill-from-url";
 import { STATUS_OPTIONS, STATUS_CONFIG } from "../types";
 import type { ActionState, CreateApplicationInput } from "../schemas";
 import type { Application } from "@/lib/db";
-import { Loader2, ArrowLeft, CalendarIcon } from "lucide-react";
+import { Loader2, ArrowLeft, CalendarIcon, Square, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { CollapsibleTextarea } from "@/components/ui/collapsible-textarea";
 
 interface ApplicationFormProps {
-  initialData?: Application; // present = edit mode, absent = create mode
+  initialData?: Application;
 }
 
 const INITIAL_STATE: ActionState<CreateApplicationInput> = {};
 
 export function ApplicationForm({ initialData }: ApplicationFormProps) {
   const isEditing = !!initialData;
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  // Bind the id for edit mode so the action signature matches useActionState
+  const [date, setDate] = useState<Date | undefined>(() =>
+    initialData?.appliedAt ? new Date(initialData.appliedAt) : undefined
+  );
+
   const action = isEditing
     ? updateApplication.bind(null, initialData.id)
     : createApplication;
@@ -40,31 +44,88 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Controlled values for autofill
+  const [company, setCompany] = useState(initialData?.company ?? "");
+  const [role, setRole] = useState(initialData?.role ?? "");
+  const [location, setLocation] = useState(initialData?.location ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [jobUrl, setJobUrl] = useState(initialData?.jobUrl ?? "");
+
+  // Autofill state
+  const [autofillUrl, setAutofillUrl] = useState("");
+  const [autofillText, setAutofillText] = useState("");
+  const [autofillMode, setAutofillMode] = useState<"url" | "paste">("url");
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [isFetching, startFetch] = useTransition();
+
   useEffect(() => {
     if (state.errors) {
-      const firstError = formRef.current?.querySelector(
-        "[aria-invalid='true']",
-      );
+      const firstError = formRef.current?.querySelector("[aria-invalid='true']");
       if (firstError) (firstError as HTMLElement).focus();
     }
   }, [state.errors]);
 
-  // On error, echo back submitted values; otherwise show initial data
-  const v = state.values ?? {};
-
-  function fieldValue(key: keyof Application, fallback = ""): string {
-    if (state.values) return v[key] ?? fallback;
-    if (initialData) {
-      const val = initialData[key];
-      if (val == null) return fallback;
-      if (val instanceof Date) return format(val, "yyyy-MM-dd");
-      return String(val);
+  // On server validation error, echo back submitted values
+  const [lastState, setLastState] = useState(state);
+  if (state !== lastState) {
+    setLastState(state);
+    if (state.values) {
+      setCompany(state.values.company ?? "");
+      setRole(state.values.role ?? "");
+      setLocation(state.values.location ?? "");
+      setDescription(state.values.description ?? "");
+      setJobUrl(state.values.jobUrl ?? "");
+      setDate(state.values.appliedAt ? new Date(state.values.appliedAt) : undefined);
     }
-    return fallback;
+  }
+
+  function handleAutofill() {
+    setAutofillError(null);
+    startFetch(async () => {
+      try {
+        let result;
+        if (autofillMode === "url") {
+          if (!autofillUrl.trim()) return;
+          result = await autofillFromUrl(autofillUrl.trim());
+        } else {
+          if (!autofillText.trim()) return;
+          result = await autofillFromText(autofillText.trim());
+        }
+
+        console.log("[handleAutofill] result received on client:", result);
+
+        if (!result) {
+          throw new Error("No response received from the autofill server action.");
+        }
+
+        if (!result.ok) {
+          setAutofillError(result.error);
+          return;
+        }
+
+        if (result.company) setCompany(result.company);
+        if (result.role) setRole(result.role);
+        if (result.location) setLocation(result.location);
+        if (autofillMode === "url") {
+          if (!jobUrl) setJobUrl(autofillUrl.trim());
+          if (result.description) setDescription(result.description);
+        } else {
+          if (result.description) setDescription(result.description);
+        }
+      } catch (err) {
+        console.error("[handleAutofill] Client-side transition error caught:", err);
+        const message =
+          err instanceof Error
+            ? err.message
+            : "An unexpected error occurred during autofill.";
+        setAutofillError(message);
+      }
+    });
   }
 
   return (
-    <div className="mx-auto max-w-2xl pb-16">
+    <div className="max-w-2xl pb-16">
       {/* Header */}
       <div className="mb-8">
         <Link
@@ -91,75 +152,154 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
       )}
 
       <form ref={formRef} action={formAction} noValidate>
+
+        {/* ── Autofill from URL  */}
+        {!isEditing && (
+          <div className="mb-8 rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Square className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm font-semibold">Autofill from job URL</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Paste the direct job posting URL and we&apos;ll extract the role, company, location, and description automatically.
+              {" "}<strong className="font-medium text-foreground/70">On LinkedIn, open the job and copy the URL from the address bar</strong> — not the recommended jobs page URL.
+              If the URL doesn&apos;t work, use the &quot;Paste description&quot; tab.
+            </p>
+
+            {/* Mode tabs */}
+            <div className="flex gap-4 border-b border-border">
+              {(["url", "paste"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { setAutofillMode(m); setAutofillError(null); }}
+                  className={[
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
+                    autofillMode === m
+                      ? "border-foreground text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {m === "url" ? "Import from URL" : "Paste description"}
+                </button>
+              ))}
+            </div>
+
+            {autofillMode === "url" ? (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                    </svg>
+                  </span>
+                  <Input
+                    type="url"
+                    placeholder="https://company.com/jobs/..."
+                    value={autofillUrl}
+                    onChange={(e) => setAutofillUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAutofill())}
+                    disabled={isFetching}
+                    className="pl-9 text-sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleAutofill}
+                  disabled={isFetching || !autofillUrl.trim()}
+                  className="gap-1.5 shrink-0"
+                >
+                  {isFetching ? (
+                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Fetching…</>
+                  ) : (
+                    <><Square className="h-3 w-3" /> Fetch &amp; fill</>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Textarea
+                  placeholder="Paste the full job description here — AI will extract company, role, location and fill the form..."
+                  value={autofillText}
+                  onChange={(e) => setAutofillText(e.target.value)}
+                  disabled={isFetching}
+                  className="min-h-[120px] resize-y text-sm"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAutofill}
+                  disabled={isFetching || !autofillText.trim()}
+                  className="gap-1.5 w-full"
+                >
+                  {isFetching ? (
+                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Extracting fields…</>
+                  ) : (
+                    <><Square className="h-3 w-3" /> Extract &amp; fill</>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {autofillError && (
+              <p className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                {autofillError}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* ── Section 1: Role ─────────────────────────────────── */}
         <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Role
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <FormField
-              id="company"
-              label="Company"
-              required
-              error={state.errors?.company}
-            >
+            <FormField id="company" label="Company" required error={state.errors?.company}>
               <Input
                 id="company"
                 name="company"
                 placeholder="e.g. Stripe"
-                defaultValue={fieldValue("company")}
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
                 aria-invalid={!!state.errors?.company}
-                disabled={isPending}
+                disabled={isPending || isFetching}
                 autoFocus={!isEditing}
               />
             </FormField>
 
-            <FormField
-              id="role"
-              label="Role"
-              required
-              error={state.errors?.role}
-            >
+            <FormField id="role" label="Role" required error={state.errors?.role}>
               <Input
                 id="role"
                 name="role"
                 placeholder="e.g. Senior Frontend Engineer"
-                defaultValue={fieldValue("role")}
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
                 aria-invalid={!!state.errors?.role}
-                disabled={isPending}
+                disabled={isPending || isFetching}
               />
             </FormField>
 
-            <FormField
-              id="location"
-              label="Location"
-              error={state.errors?.location}
-            >
+            <FormField id="location" label="Location" error={state.errors?.location}>
               <Input
                 id="location"
                 name="location"
                 placeholder="e.g. Berlin or Remote"
-                defaultValue={fieldValue("location")}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 aria-invalid={!!state.errors?.location}
-                disabled={isPending}
+                disabled={isPending || isFetching}
               />
             </FormField>
 
-            <FormField
-              id="status"
-              label="Status"
-              required
-              error={state.errors?.status}
-            >
+            <FormField id="status" label="Status" required error={state.errors?.status}>
               <Select
                 name="status"
-                defaultValue={fieldValue("status", "bookmarked")}
+                defaultValue={state.values?.status ?? initialData?.status ?? "bookmarked"}
                 disabled={isPending}
               >
-                <SelectTrigger
-                  id="status"
-                  aria-invalid={!!state.errors?.status}
-                >
+                <SelectTrigger id="status" aria-invalid={!!state.errors?.status}>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,7 +323,8 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
                 name="jobUrl"
                 type="url"
                 placeholder="https://company.com/jobs/..."
-                defaultValue={fieldValue("jobUrl")}
+                value={jobUrl}
+                onChange={(e) => setJobUrl(e.target.value)}
                 aria-invalid={!!state.errors?.jobUrl}
                 disabled={isPending}
               />
@@ -193,7 +334,7 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
 
         {/* ── Section 2: Compensation ──────────────────────────── */}
         <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Compensation
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -213,18 +354,15 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
                   type="number"
                   min={0}
                   placeholder="60000"
-                  defaultValue={fieldValue("salaryMin")}
+                  defaultValue={state.values?.salaryMin ?? initialData?.salaryMin ?? ""}
                   aria-invalid={!!state.errors?.salaryMin}
                   disabled={isPending}
                   className="pl-7"
                 />
               </div>
             </FormField>
-            <FormField
-              id="salaryMax"
-              label="Max salary"
-              error={state.errors?.salaryMax}
-            >
+
+            <FormField id="salaryMax" label="Max salary" error={state.errors?.salaryMax}>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground select-none">
                   €
@@ -235,13 +373,14 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
                   type="number"
                   min={0}
                   placeholder="90000"
-                  defaultValue={fieldValue("salaryMax")}
+                  defaultValue={state.values?.salaryMax ?? initialData?.salaryMax ?? ""}
                   aria-invalid={!!state.errors?.salaryMax}
                   disabled={isPending}
                   className="pl-7"
                 />
               </div>
             </FormField>
+
             <FormField
               id="appliedAt"
               label="Date applied"
@@ -281,38 +420,31 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
 
         {/* ── Section 3: Details ───────────────────────────────── */}
         <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Details
           </h2>
           <div className="flex flex-col gap-5">
-            <FormField
+            <CollapsibleTextarea
               id="description"
-              label="Job description"
-              error={state.errors?.description}
-              hint="Paste the full job posting — used by the AI cover letter generator"
-            >
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Paste the job description here..."
-                defaultValue={fieldValue("description")}
-                aria-invalid={!!state.errors?.description}
-                disabled={isPending}
-                className="min-h-[140px] resize-y"
-              />
-            </FormField>
-
+              name="description"
+              label="Job Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Paste the job description here..."
+              aria-invalid={!!state.errors?.description}
+              disabled={isPending || isFetching}
+            />
             <FormField
               id="notes"
               label="Notes"
               error={state.errors?.notes}
-              hint="Private notes — referrals, impressions, things to research"
+              hint="Private — referrals, impressions, things to research"
             >
               <Textarea
                 id="notes"
                 name="notes"
                 placeholder="Any personal notes about this role..."
-                defaultValue={fieldValue("notes")}
+                defaultValue={state.values?.notes ?? initialData?.notes ?? ""}
                 aria-invalid={!!state.errors?.notes}
                 disabled={isPending}
                 className="min-h-[100px] resize-y"
@@ -321,13 +453,13 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
           </div>
         </section>
 
-        {/* ── Actions ──────────────────────────────────────────── */}
+        {/* ── Actions  */}
         <div className="flex items-center gap-3 pt-2 border-t">
           <Button type="submit" disabled={isPending} className="min-w-[140px]">
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                Saving…
               </>
             ) : isEditing ? (
               "Save changes"
@@ -336,11 +468,7 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
             )}
           </Button>
           <Button variant="ghost" asChild disabled={isPending}>
-            <Link
-              href={
-                isEditing ? `/applications/${initialData.id}` : "/applications"
-              }
-            >
+            <Link href={isEditing ? `/applications/${initialData.id}` : "/applications"}>
               Cancel
             </Link>
           </Button>

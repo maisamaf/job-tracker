@@ -2,12 +2,14 @@ import { streamText } from "ai";
 import { auth } from "@/auth";
 import { getLanguageModel, AIProvider } from "@/lib/ai";
 import { buildCoverLetterPrompt } from "@/features/cover-letter/lib/prompt";
-import {TONE_OPTIONS} from "@/features/cover-letter/types";
+import { TONE_OPTIONS } from "@/features/cover-letter/types";
 import { z } from "zod";
+import { db } from "@/lib/db";
+import { userProfiles } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 const requestSchema = z.object({
   jobDescription: z.string().min(20, "Job description too short"),
-  background: z.string().min(20, "Background too short"),
   tone: z.enum(TONE_OPTIONS),
   additionalContext: z.string().optional(),
   company: z.string().optional(),
@@ -34,7 +36,53 @@ export async function POST(req: Request) {
     );
   }
 
-  const { aiProvider, aiModel, background, ...promptData } = parsed.data;
+  // Load user profile to construct background context dynamically
+  const profile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, session.user.id),
+  });
+
+  if (!profile || (!profile.cvRawText && !profile.skills)) {
+    return new Response(
+      JSON.stringify({ error: "Complete your profile first under Settings before generating a cover letter." }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Format background fields from profile JSON/text
+  const summary = profile.summary || "";
+  const skills = profile.skills ? JSON.parse(profile.skills).join(", ") : "";
+  const experienceArray = profile.experience ? JSON.parse(profile.experience) : [];
+  const educationArray = profile.education ? JSON.parse(profile.education) : [];
+  const languagesArray = profile.languages ? JSON.parse(profile.languages) : [];
+
+  let parsedExperience = "";
+  if (experienceArray.length > 0) {
+    parsedExperience = "\nWork Experience:\n" + experienceArray.map((exp: any) => 
+      `- ${exp.role} at ${exp.company} (${exp.years}):\n  ${(exp.bullets || []).map((b: string) => `  * ${b}`).join("\n")}`
+    ).join("\n");
+  }
+
+  let parsedEducation = "";
+  if (educationArray.length > 0) {
+    parsedEducation = "\nEducation:\n" + educationArray.map((edu: any) => 
+      `- ${edu.degree} at ${edu.institution} (${edu.year})`
+    ).join("\n");
+  }
+
+  let parsedLanguages = "";
+  if (languagesArray.length > 0) {
+    parsedLanguages = `\nLanguages: ${languagesArray.join(", ")}`;
+  }
+
+  const background = `
+Summary: ${summary}
+Skills: ${skills}
+${parsedExperience}
+${parsedEducation}
+${parsedLanguages}
+`.trim();
+
+  const { aiProvider, aiModel, ...promptData } = parsed.data;
   const prompt = buildCoverLetterPrompt({
     ...promptData,
     yourBackground: background,
@@ -54,7 +102,7 @@ export async function POST(req: Request) {
       temperature: 0.7,
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error: unknown) {
     console.error("AI Generation Error:", error);
     const { message, status } = getFriendlyAIError(error);

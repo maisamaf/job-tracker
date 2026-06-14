@@ -25,6 +25,11 @@ export default async function CoverLetterPage({ searchParams }: Props) {
     db.query.applications.findMany({
       where: eq(applications.userId, session.user.id),
       columns: { id: true, company: true, role: true, description: true },
+      with: {
+        jobPosting: {
+          columns: { rawText: true },
+        },
+      },
       orderBy: (a, { desc }) => [desc(a.createdAt)],
     }),
     getCoverLetters({ limit: PREVIEW_LIMIT }),

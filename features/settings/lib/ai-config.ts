@@ -71,13 +71,13 @@ export const MODELS_BY_PROVIDER: Record<string, AIModelConfig[]> = {
   ],
   gemini: [
     {
-      value: "gemini-2.0-flash",
-      label: "Gemini 2.0 Flash",
+      value: "gemini-3.5-flash",
+      label: "Gemini 3.5 Flash",
       description: "Latest generation, very fast",
     },
     {
-      value: "gemini-1.5-pro",
-      label: "Gemini 1.5 Pro",
+      value: "gemini-2.0-pro",
+      label: "Gemini 2.0 Pro",
       description: "Long context window, high quality",
     },
     {

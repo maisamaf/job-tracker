@@ -43,11 +43,6 @@ export async function updateApplication(
 
   const data = parsed.data;
 
-  const updates: typeof data & { updatedAt: Date } = {
-    ...data,
-    updatedAt: new Date(),
-  };
-
   const promises: Promise<unknown>[] = [
     db
       .update(applications)

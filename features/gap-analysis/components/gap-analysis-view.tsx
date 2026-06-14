@@ -5,7 +5,7 @@ import { GapSkeleton } from "./gap-skeleton";
 import { MatchAnalysisCard } from "./match-analysis-card";
 import { RoleIntelCard } from "./role-intel-card";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import type { GapAnalysis, JobPosting } from "@/lib/db/schema";
 import Link from "next/link";
 

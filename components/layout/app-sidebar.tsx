@@ -21,7 +21,7 @@ import {
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { Logo } from "./logo";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { SearchDialog } from "@/features/applications/components/search-dialog";
 import { QuickCreateDialog } from "@/features/applications/components/quick-create-dialog";
 import {
@@ -34,7 +34,6 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
 

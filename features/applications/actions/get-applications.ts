@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 import { db, applications } from "@/lib/db";
 import type {
   ApplicationStatus,

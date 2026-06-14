@@ -17,7 +17,7 @@ interface PostingStatusProps {
 export function PostingStatus({ applicationId, initialJobUrl, initialDescription, isTabActive = true }: PostingStatusProps) {
   const queryClient = useQueryClient();
 
-  const { data: posting, isLoading, error } = useQuery<JobPosting | null>({
+  const { data: posting, isLoading } = useQuery<JobPosting | null>({
     queryKey: ["job-posting", applicationId],
     queryFn: async () => {
       const res = await fetch(`/api/postings/${applicationId}`);

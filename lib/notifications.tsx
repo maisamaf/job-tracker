@@ -52,9 +52,11 @@ const NotificationsContext = createContext<NotificationsContextValue | null>(nul
 function playNotificationSound() {
   if (typeof window === "undefined") return;
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
     if (ctx.state === "suspended") {
       ctx.resume();
     }

@@ -1,7 +1,6 @@
-import { NextRequest } from "next/server";
 import { getProfile } from "@/features/profile/actions/get-profile";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const profile = await getProfile();
     return Response.json(profile);

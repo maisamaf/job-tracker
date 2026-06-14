@@ -51,20 +51,33 @@ export async function POST(req: Request) {
   // Format background fields from profile JSON/text
   const summary = profile.summary || "";
   const skills = profile.skills ? JSON.parse(profile.skills).join(", ") : "";
-  const experienceArray = profile.experience ? JSON.parse(profile.experience) : [];
-  const educationArray = profile.education ? JSON.parse(profile.education) : [];
-  const languagesArray = profile.languages ? JSON.parse(profile.languages) : [];
+  interface ExperienceEntry {
+    role: string;
+    company: string;
+    years: string;
+    bullets?: string[];
+  }
+
+  interface EducationEntry {
+    degree: string;
+    institution: string;
+    year: string;
+  }
+
+  const experienceArray = (profile.experience ? JSON.parse(profile.experience) : []) as ExperienceEntry[];
+  const educationArray = (profile.education ? JSON.parse(profile.education) : []) as EducationEntry[];
+  const languagesArray = (profile.languages ? JSON.parse(profile.languages) : []) as string[];
 
   let parsedExperience = "";
   if (experienceArray.length > 0) {
-    parsedExperience = "\nWork Experience:\n" + experienceArray.map((exp: any) => 
-      `- ${exp.role} at ${exp.company} (${exp.years}):\n  ${(exp.bullets || []).map((b: string) => `  * ${b}`).join("\n")}`
+    parsedExperience = "\nWork Experience:\n" + experienceArray.map((exp) => 
+      `- ${exp.role} at ${exp.company} (${exp.years}):\n  ${(exp.bullets || []).map((b) => `  * ${b}`).join("\n")}`
     ).join("\n");
   }
 
   let parsedEducation = "";
   if (educationArray.length > 0) {
-    parsedEducation = "\nEducation:\n" + educationArray.map((edu: any) => 
+    parsedEducation = "\nEducation:\n" + educationArray.map((edu) => 
       `- ${edu.degree} at ${edu.institution} (${edu.year})`
     ).join("\n");
   }

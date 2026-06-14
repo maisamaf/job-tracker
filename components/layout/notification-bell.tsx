@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BellIcon, CheckIcon, Trash2Icon } from "lucide-react";
+import { BellIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

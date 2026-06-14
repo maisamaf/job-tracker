@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { DashboardStats } from "../actions/get-dashboard-data";
 import { Lightbulb } from "lucide-react";
 

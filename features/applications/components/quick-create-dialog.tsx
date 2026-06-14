@@ -113,6 +113,13 @@ export function QuickCreateDialog({ open, onOpenChange }: QuickCreateDialogProps
             inputRef.current?.focus();
           }}
         >
+          <DialogPrimitive.Title className="sr-only">
+            Quick-add application from URL
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">
+            Paste a job posting URL and press Enter to automatically parse and add it to your board.
+          </DialogPrimitive.Description>
+
           {/* ── Header */}
           <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
             <Zap className="h-3.5 w-3.5 shrink-0 text-primary" />

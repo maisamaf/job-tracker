@@ -62,7 +62,7 @@ export function KanbanBoard({ initialData }: KanbanBoardProps) {
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
+    const { over } = event;
     setActiveApp(null);
     setOverColumn(null);
 

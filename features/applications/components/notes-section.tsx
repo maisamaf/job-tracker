@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { updateNotes } from "../actions/update-notes";
-import { Loader2, Pencil, Check, X } from "lucide-react";
+import { Loader2, Check, X } from "lucide-react";
 import type { ActionState } from "../schemas";
 
 interface NotesSectionProps {

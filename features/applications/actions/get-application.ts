@@ -1,5 +1,5 @@
 import { eq, and } from "drizzle-orm"
-import { db, applications, contacts, interviews, activityLog, coverLetters } from "@/lib/db"
+import { db, applications } from "@/lib/db"
 import { auth } from "@/auth"
 
 export async function getApplication(id: string) {

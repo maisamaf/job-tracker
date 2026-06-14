@@ -110,7 +110,7 @@ export function CoverLetterGenerator({
         setJobDescription(getCleanJobDescription(app?.description, app?.jobPosting?.rawText));
       }
     },
-    [applications],
+    [applications, setSelectedAppId, setSaved, setJobDescription],
   );
 
   async function handleGenerate() {

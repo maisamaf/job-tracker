@@ -15,7 +15,7 @@ import {
 import { FormField } from "./form-field";
 import { createApplication } from "../actions/create-application";
 import { updateApplication } from "../actions/update-application";
-import { autofillFromUrl, autofillFromText, type AutofillResponse } from "../actions/autofill-from-url";
+import { autofillFromUrl, autofillFromText } from "../actions/autofill-from-url";
 import { STATUS_OPTIONS, STATUS_CONFIG } from "../types";
 import type { ActionState, CreateApplicationInput } from "../schemas";
 import type { Application } from "@/lib/db";
@@ -67,7 +67,9 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
   }, [state.errors]);
 
   // On server validation error, echo back submitted values
-  useEffect(() => {
+  const [lastState, setLastState] = useState(state);
+  if (state !== lastState) {
+    setLastState(state);
     if (state.values) {
       setCompany(state.values.company ?? "");
       setRole(state.values.role ?? "");
@@ -75,9 +77,8 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
       setDescription(state.values.description ?? "");
       setJobUrl(state.values.jobUrl ?? "");
       setDate(state.values.appliedAt ? new Date(state.values.appliedAt) : undefined);
-
     }
-  }, [state.values]);
+  }
 
   function handleAutofill() {
     setAutofillError(null);

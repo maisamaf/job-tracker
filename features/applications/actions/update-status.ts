@@ -6,7 +6,6 @@ import { auth } from "@/auth"
 import { db, applications, activityLog } from "@/lib/db"
 import { updateStatusSchema } from "../schemas"
 import type { ActionState } from "../schemas"
-import type { ApplicationStatus } from "../types"
 
 export async function updateStatus(
     id: string,

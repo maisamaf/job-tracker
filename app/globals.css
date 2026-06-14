@@ -39,6 +39,7 @@
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
+    --color-background-chip: var(--background-chip);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -48,18 +49,22 @@
     --radius-4xl: calc(var(--radius) * 2.6);
     --animate-marquee: marquee var(--duration) infinite linear;
     --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
     @keyframes marquee {
         from {
             transform: translateX(0);
         }
+
         to {
             transform: translateX(calc(-100% - var(--gap)));
         }
     }
+
     @keyframes marquee-vertical {
         from {
             transform: translateY(0);
         }
+
         to {
             transform: translateY(calc(-100% - var(--gap)));
         }
@@ -99,6 +104,7 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    --background-chip: oklch(0.966 0.0093 99.98);
 }
 
 .dark {
@@ -133,22 +139,26 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+    --background-chip: rgb(245 244 237);
 }
 
 @keyframes step-progress {
     from {
         width: 0%;
     }
+
     to {
         width: 100%;
     }
 }
 
 @keyframes float-annotation {
+
     0%,
     100% {
         transform: translateY(0px);
     }
+
     50% {
         transform: translateY(-5px);
     }
@@ -162,17 +172,21 @@
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
     }
+
     button:not(:disabled),
     [role="button"]:not(:disabled) {
         cursor: pointer;
     }
+
     html {
         @apply font-sans;
         scroll-behavior: smooth;
     }
+
     /* Offset scroll targets for the sticky navbar */
     [id] {
         scroll-margin-top: 4.5rem;

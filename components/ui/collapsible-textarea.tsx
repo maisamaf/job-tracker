@@ -70,11 +70,11 @@ export function CollapsibleTextarea({
           className={cn(
             className,
             !expanded &&
-              showToggle &&
-              ` field-sizing-fixed overflow-hidden resize-none z-0`,
+            showToggle &&
+            ` field-sizing-fixed overflow-hidden resize-none z-0 text-muted-foreground text-justify`,
           )}
           style={{
-            ...style, 
+            ...style,
             minHeight: "160px",
           }}
           {...props}

@@ -453,7 +453,7 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
           </div>
         </section>
 
-        {/* ── Actions ──────────────────────────────────────────── */}
+        {/* ── Actions  */}
         <div className="flex items-center gap-3 pt-2 border-t">
           <Button type="submit" disabled={isPending} className="min-w-[140px]">
             {isPending ? (

@@ -13,7 +13,7 @@ Highlights
 
 |  |  |
 |---:|:---|
-| ![Screenshot 1](public/images/01.png) | ![Screenshot 2](public/images/02.png) |
+| ![Screenshot 1](public/images/01.png) | ![Screenshot 2](public/images/job-detail-preview.png) |
 
 
 ## What’s Included
@@ -30,6 +30,12 @@ Core features implemented in this repository:
 - Analytics dashboard: basic visualisations of pipeline health and response rates.
 - CSV export endpoint for offline analysis.
 - Authentication: GitHub OAuth, Google OAuth, and email/password sign-up and sign-in (NextAuth v5) with a branded split-panel auth UI.
+- AI Gap Analysis & Match Scoring: Automatic candidate-to-job fit analysis comparing CV skills, experience, and profile against the job posting details. Returns matching, partial, and missing skills with an overall fit score and recommendations.
+- AI Interview Prep: Automatically extracts and lists tailored technical, behavioral, role-specific, and culture interview questions with suggested answers.
+- Smart Job Ingestion & Scraping: Paste direct job links (LinkedIn, Indeed, etc.) to automatically fetch, scrape, and structure the job details using Jina Reader or fallback Cheerio scrapers.
+- Interactive Dashboard Nudges: Real-time dynamic tips based on pipeline analytics to prompt next steps.
+- Real-Time Notifications: User notification center with visual alerts and soft audio chimes when background AI processing (like ingestion or gap analysis) completes.
+- Settings & AI Configuration Panel: Unified preferences view allowing users to save display name, manage CV profile experience/education lists, choose their preferred AI provider (OpenAI, Anthropic, Gemini, Ollama/OpenWebUI), active models, and customize embedding dimensions.
 
 If you explore the codebase you’ll find feature folders under `features/` and page routes under `app/` that map directly to these capabilities.
 
@@ -95,21 +101,21 @@ Quick setup
 ```bash
 git clone https://github.com/maisamaf/job-tracker.git
 cd job-tracker
-npm install
+bun install
 cp .env.local.example .env.local # or fill .env.local directly
-npm run db:push                   # push schema to dev DB
-npm run dev
+bun run db:push                   # push schema to dev DB
+bun run dev
 ```
 
 
 ## Scripts
 
 ```bash
-npm run db:push
-npm run db:generate
-npm run db:migrate
-npm run db:studio
-npm run dev
+bun run db:push
+bun run db:generate
+bun run db:migrate
+bun run db:studio
+bun run dev
 ```
 
 ## Development Roadmap
@@ -127,11 +133,19 @@ What’s done (core):
 - [x] Analytics dashboard
 - [x] CSV export
 - [x] Landing Page
+- [x] Settings page (with AI model preferences and CV builder)
+- [x] Smart Job Ingestion & Scraper (via Jina Reader & Cheerio)
+- [x] AI Gap Analysis & Match Scoring
+- [x] AI Interview Prep Questions & Answers
+- [x] Keyword / Skills extractions
 
 Remaining / future work:
 
-- [ ] Keyword extraction
-- [ ] Settings page
+- [ ] Job posting ingest via UI: Scrapes automatically in the background on creation or gap analysis fallback, but no UI trigger exists on the application detail page.
+- [ ] Vector embeddings & Similarity search: Schema columns and dimensions are prepared, but actual vector generation code is pending.
+- [ ] Profile completeness indicator: Stub component exists but is not yet wired up.
+- [ ] CV file upload: Stub exists but is not functional.
+- [ ] Cover letter update: Enable downloading generated cover letters in PDF format.
 - [ ] End-to-end tests and CI pipeline
 
 

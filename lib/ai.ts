@@ -41,7 +41,7 @@ function detectDefaultProvider(): AIProvider {
   if (process.env.OPENAI_API_KEY) return AIProvider.OPENAI;
   if (process.env.OPENWEB_API_KEY) return AIProvider.OPENWEB;
   // Fallback — will fail gracefully with a missing-key error at request time
-  return AIProvider.ANTHROPIC;
+  return AIProvider.OPENWEB;
 }
 
 // Default models (used when AI_MODEL is not set)

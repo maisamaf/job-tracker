@@ -12,6 +12,17 @@ export interface AIModelConfig {
 
 export const AI_PROVIDERS: AIProviderConfig[] = [
   {
+    value: "openweb",
+    label: "Custom / Self-hosted",
+    description:
+      "OpenAI-compatible endpoint (Open WebUI, Ollama, OpenRouter)",
+  },
+  {
+    value: "gemini",
+    label: "Google Gemini",
+    description: "Gemini models — fast & cost-effective",
+  },
+  {
     value: "anthropic",
     label: "Anthropic",
     description: "Claude models — state-of-the-art reasoning & analysis",
@@ -20,17 +31,6 @@ export const AI_PROVIDERS: AIProviderConfig[] = [
     value: "openai",
     label: "OpenAI",
     description: "GPT models — widely supported & versatile",
-  },
-  {
-    value: "gemini",
-    label: "Google Gemini",
-    description: "Gemini models — fast & cost-effective",
-  },
-  {
-    value: "openweb",
-    label: "Custom / Self-hosted",
-    description:
-      "OpenAI-compatible endpoint (Open WebUI, Ollama, OpenRouter)",
   },
 ];
 

@@ -95,11 +95,15 @@ CRITICAL RULES FOR SKILL CATEGORIZATION (follow exactly — no exceptions):
 4. Normalize skill names (e.g., "Node.js" and "NodeJS" are the same). Use the job's naming convention.
 5. Be conservative: only put something in "matchedSkills" if there is clear evidence. When in doubt, use "partialSkills".
 
-SCORING RULES:
-- "skillMatchScore" (0–100): Percentage of required+tech-stack skills that are matched or partial (matched = full credit, partial = 50% credit).
-- "experienceScore" (0–100): How well the candidate's years and type of experience match the seniority, scope, and domain of the role.
-- "overallMatchScore" (0–100): Weighted average — skills (60%) + experience (40%).
-- Scores must be consistent with the skill breakdown. If 8/10 skills match, skillMatchScore should be ~80.
+SCORING RULES — compute scores mechanically using these exact formulas:
+Step 1: Count M = length of matchedSkills, P = length of partialSkills, T = M + P + length of missingSkills.
+Step 2: skillMatchScore = round((M + 0.5 * P) / T * 100). If T = 0, set skillMatchScore = 0.
+Step 3: experienceScore = an integer 0–100 based solely on years/type of experience vs. seniority required:
+  - If candidate clearly meets or exceeds the seniority requirement: 75–100
+  - If candidate partially meets it (e.g., 3 yrs for a senior role): 40–74
+  - If candidate is significantly under-experienced: 0–39
+Step 4: overallMatchScore = round(skillMatchScore * 0.6 + experienceScore * 0.4).
+Important: the final scores MUST be consistent with the computed values above. Do not adjust them.
 
 RECOMMENDATIONS: Provide 3–5 specific, actionable recommendations. Reference actual skill gaps. Be concrete (e.g., "Build a project with FastAPI" not "Learn backend").
 

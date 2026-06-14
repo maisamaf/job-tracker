@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import {
   DndContext,
   DragEndEvent,
@@ -94,6 +95,8 @@ export function KanbanBoard({ initialData }: KanbanBoardProps) {
           next[fromStatus] = [...next[fromStatus], activeApp];
           return next;
         });
+        const rootError = result.errors.root?.[0] || "Failed to update application status.";
+        toast.error(rootError);
       }
     });
   }

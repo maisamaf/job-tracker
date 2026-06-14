@@ -23,17 +23,30 @@ import { Logo } from "./logo";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SearchDialog } from "@/features/applications/components/search-dialog";
+import { QuickCreateDialog } from "@/features/applications/components/quick-create-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
 
-  // Global ⌘K / Ctrl+K shortcut
+  // Global ⌘K / Ctrl+K → search   |   ⌘J / Ctrl+J → quick add
   const handleGlobalKey = useCallback((e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+    if (!(e.metaKey || e.ctrlKey)) return;
+    if (e.key === "k") {
       e.preventDefault();
       setSearchOpen((prev) => !prev);
+    } else if (e.key === "j") {
+      e.preventDefault();
+      setQuickCreateOpen((prev) => !prev);
     }
   }, []);
 
@@ -54,26 +67,50 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarMenuItem className="flex items-center gap-2">
-              <SidebarMenuButton
-                className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-                tooltip="Add application"
-                onClick={() => router.push("/applications/new")}
-              >
-                <PlusIcon />
-                <span>Add application</span>
-              </SidebarMenuButton>
-              <Button
-                aria-label="Search applications"
-                className="size-8 group-data-[collapsible=icon]:opacity-0"
-                size="icon"
-                variant="outline"
-                onClick={() => setSearchOpen(true)}
-              >
-                <SearchIcon />
-                <span className="sr-only">Search applications</span>
-              </Button>
-            </SidebarMenuItem>
+            <TooltipProvider>
+              <SidebarMenuItem className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton
+                      className=" bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+                      tooltip="Add application (⌘J)"
+                      onClick={() => setQuickCreateOpen(true)}
+                    >
+                      <PlusIcon />
+                      <span>Add application</span>
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={8}>
+                    Quick add application
+                    <KbdGroup>
+                      <Kbd>⌘</Kbd>
+                      <Kbd>J</Kbd>
+                    </KbdGroup>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label="Search applications (⌘K)"
+                      className="size-8 group-data-[collapsible=icon]:opacity-0"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => setSearchOpen(true)}
+                    >
+                      <SearchIcon />
+                      <span className="sr-only">Search applications</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" sideOffset={8}>
+                    Search applications
+                    <KbdGroup>
+                      <Kbd>⌘</Kbd>
+                      <Kbd>K</Kbd>
+                    </KbdGroup>
+                  </TooltipContent>
+                </Tooltip>
+              </SidebarMenuItem>
+            </TooltipProvider>
           </SidebarGroup>
           {navGroups.map((group, index) => (
             <NavGroup key={`sidebar-group-${index}`} {...group} />
@@ -101,6 +138,8 @@ export function AppSidebar() {
       </Sidebar>
 
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      <QuickCreateDialog open={quickCreateOpen} onOpenChange={setQuickCreateOpen} />
     </>
   );
 }
+

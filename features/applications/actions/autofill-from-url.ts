@@ -13,13 +13,22 @@ export interface AutofillResult {
   role?: string;
   location?: string;
   description?: string;
+  salaryMin?: number;
+  salaryMax?: number;
 }
+
+/** Discriminated union — never throws so React 19 error boundaries aren't triggered. */
+export type AutofillResponse =
+  | ({ ok: true } & AutofillResult)
+  | { ok: false; error: string };
 
 const autofillSchema = z.object({
   company: z.string().optional(),
   role: z.string().optional(),
   location: z.string().optional(),
   description: z.string().optional(),
+  salaryMin: z.number().int().positive().optional(),
+  salaryMax: z.number().int().positive().optional(),
 });
 
 async function getModel() {
@@ -48,8 +57,10 @@ Fields to extract:
 - role: the job title / position name
 - location: city, country or "Remote" (leave empty if not mentioned)
 - description: the complete job description text as-is (the full posting body, NOT a summary)
+- salaryMin: the minimum salary as a plain integer (no currency symbols, no commas). Omit if not mentioned.
+- salaryMax: the maximum salary as a plain integer (no currency symbols, no commas). Omit if not mentioned.
 
-Return ONLY a JSON object with these four keys. If a field cannot be determined, omit it.
+Return ONLY a JSON object with these six keys. If a field cannot be determined, omit it.
 
 Job posting text:
 ---
@@ -103,8 +114,12 @@ function normalizeJobUrl(raw: string): string {
  * Fetches a job URL via Jina Reader (r.jina.ai) which handles JavaScript
  * rendering and bot-protected sites like LinkedIn and Indeed, then uses the
  * AI to extract structured fields.
+ *
+ * Returns a discriminated union — never throws — so React 19 async-transition
+ * errors don't trigger error boundaries.
  */
-export async function autofillFromUrl(url: string): Promise<AutofillResult> {
+export async function autofillFromUrl(url: string): Promise<AutofillResponse> {
+  console.log("[autofillFromUrl] Action started with URL:", url);
   const normalized = normalizeJobUrl(url.trim());
   const apiKey = process.env.JINA_API_KEY;
 
@@ -124,69 +139,129 @@ export async function autofillFromUrl(url: string): Promise<AutofillResult> {
   try {
     response = await fetch(jinaUrl, { headers, signal: controller.signal });
   } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("Scraping request timed out. Please try the \"Paste description\" tab instead.");
-    }
-    throw err;
-  } finally {
     clearTimeout(timeoutId);
+    console.error("[autofillFromUrl] Scraping failed:", err);
+    if (err instanceof Error && err.name === "AbortError") {
+      return {
+        ok: false,
+        error: "Scraping request timed out. Try the \"Paste description\" tab instead.",
+      };
+    }
+    return {
+      ok: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch the job URL. Try the \"Paste description\" tab instead.",
+    };
   }
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
-    throw new Error(
-      `Could not fetch job URL (${response.status}). Try the "Paste description" tab instead.`
-    );
+    console.warn("[autofillFromUrl] Scraping response not OK:", response.status);
+    return {
+      ok: false,
+      error: `Could not fetch job URL (HTTP ${response.status}). Try the "Paste description" tab instead.`,
+    };
   }
 
   const text = await response.text();
 
   if (!text || text.length < 100) {
-    throw new Error(
-      "Could not extract content from this URL. Try the \"Paste description\" tab instead."
-    );
+    console.warn("[autofillFromUrl] Scraping returned empty or too short text:", text?.length);
+    return {
+      ok: false,
+      error: "Could not extract content from this URL. Try the \"Paste description\" tab instead.",
+    };
   }
 
-  const model = await getModel();
-  const result = await generateJsonObject({
-    model,
-    schema: autofillSchema,
-    prompt: buildPrompt(text),
-    maxAttempts: 2,
-  });
+  let result: AutofillResult;
+  try {
+    const model = await getModel();
+    console.log("[autofillFromUrl] AI Model resolved. Calling generateJsonObject...");
+    result = await generateJsonObject({
+      model,
+      schema: autofillSchema,
+      prompt: buildPrompt(text),
+      maxAttempts: 2,
+    });
+    console.log("[autofillFromUrl] AI extraction result:", result);
+  } catch (err) {
+    console.error("[autofillFromUrl] AI extraction failed:", err);
+    return {
+      ok: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "AI extraction failed. Try the \"Paste description\" tab instead.",
+    };
+  }
 
-  // If the LLM found nothing useful, the page was likely a login wall or
-  // generic listing — show a clear message.
-  const hasAnyField = result.company || result.role || result.location || result.description;
+  const hasAnyField =
+    result.company || result.role || result.location || result.description;
   if (!hasAnyField) {
-    throw new Error(
-      "Could not extract job details from this URL — the page may require login. Try the \"Paste description\" tab instead."
-    );
+    console.warn("[autofillFromUrl] AI returned empty fields:", result);
+    return {
+      ok: false,
+      error:
+        "Could not extract job details from this URL — the page may require login. Try the \"Paste description\" tab instead.",
+    };
   }
 
-  return result;
+  const responseObj = { ok: true, ...result };
+  console.log("[autofillFromUrl] Returning success:", responseObj);
+  return responseObj as AutofillResponse;
 }
 
 /**
  * Parses a raw pasted job description text using the AI to extract structured
  * fields.
+ *
+ * Returns a discriminated union — never throws — so React 19 async-transition
+ * errors don't trigger error boundaries.
  */
-export async function autofillFromText(text: string): Promise<AutofillResult> {
+export async function autofillFromText(
+  text: string
+): Promise<AutofillResponse> {
+  console.log("[autofillFromText] Action started with text length:", text?.length);
   if (!text || text.trim().length < 20) {
-    throw new Error("Please paste more text.");
+    return { ok: false, error: "Please paste more text." };
   }
 
-  const model = await getModel();
-  const result = await generateJsonObject({
-    model,
-    schema: autofillSchema,
-    prompt: buildPrompt(text),
-    maxAttempts: 2,
-  });
+  let result: AutofillResult;
+  try {
+    const model = await getModel();
+    console.log("[autofillFromText] AI Model resolved. Calling generateJsonObject...");
+    result = await generateJsonObject({
+      model,
+      schema: autofillSchema,
+      prompt: buildPrompt(text),
+      maxAttempts: 2,
+    });
+    console.log("[autofillFromText] AI extraction result:", result);
+  } catch (err) {
+    console.error("[autofillFromText] AI extraction failed:", err);
+    return {
+      ok: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "AI extraction failed. Make sure your AI provider is configured.",
+    };
+  }
 
-  const hasAnyField = result.company || result.role || result.location || result.description;
+  const hasAnyField =
+    result.company || result.role || result.location || result.description;
   if (!hasAnyField) {
-    throw new Error("Could not extract job details from the pasted text. Make sure you paste the full job description.");
+    console.warn("[autofillFromText] AI returned empty fields:", result);
+    return {
+      ok: false,
+      error:
+        "Could not extract job details from the pasted text. Make sure you paste the full job description.",
+    };
   }
 
-  return result;
+  const responseObj = { ok: true, ...result };
+  console.log("[autofillFromText] Returning success:", responseObj);
+  return responseObj as AutofillResponse;
 }

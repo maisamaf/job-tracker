@@ -15,7 +15,7 @@ import {
 import { FormField } from "./form-field";
 import { createApplication } from "../actions/create-application";
 import { updateApplication } from "../actions/update-application";
-import { autofillFromUrl, autofillFromText } from "../actions/autofill-from-url";
+import { autofillFromUrl, autofillFromText, type AutofillResponse } from "../actions/autofill-from-url";
 import { STATUS_OPTIONS, STATUS_CONFIG } from "../types";
 import type { ActionState, CreateApplicationInput } from "../schemas";
 import type { Application } from "@/lib/db";
@@ -87,18 +87,37 @@ export function ApplicationForm({ initialData }: ApplicationFormProps) {
         if (autofillMode === "url") {
           if (!autofillUrl.trim()) return;
           result = await autofillFromUrl(autofillUrl.trim());
-          if (!jobUrl) setJobUrl(autofillUrl.trim());
         } else {
           if (!autofillText.trim()) return;
           result = await autofillFromText(autofillText.trim());
-          if (result.description) setDescription(result.description);
         }
+
+        console.log("[handleAutofill] result received on client:", result);
+
+        if (!result) {
+          throw new Error("No response received from the autofill server action.");
+        }
+
+        if (!result.ok) {
+          setAutofillError(result.error);
+          return;
+        }
+
         if (result.company) setCompany(result.company);
         if (result.role) setRole(result.role);
         if (result.location) setLocation(result.location);
-        if (autofillMode === "url" && result.description) setDescription(result.description);
+        if (autofillMode === "url") {
+          if (!jobUrl) setJobUrl(autofillUrl.trim());
+          if (result.description) setDescription(result.description);
+        } else {
+          if (result.description) setDescription(result.description);
+        }
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to extract data";
+        console.error("[handleAutofill] Client-side transition error caught:", err);
+        const message =
+          err instanceof Error
+            ? err.message
+            : "An unexpected error occurred during autofill.";
         setAutofillError(message);
       }
     });

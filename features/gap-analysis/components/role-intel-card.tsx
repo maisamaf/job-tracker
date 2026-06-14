@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { JobPosting } from "@/lib/db/schema";
 import { Briefcase, Award, Globe, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface RoleIntelCardProps {
   posting: JobPosting;
@@ -61,14 +62,14 @@ export function RoleIntelCard({ posting }: RoleIntelCardProps) {
       {/* Skills grid */}
       {(requiredSkills.length > 0 || niceToHave.length > 0) && (
         <div className="px-5 pb-4">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+          <div className={cn("grid gap-x-6 gap-y-3", requiredSkills.length > 0 && niceToHave.length > 0 ? "grid-cols-2" : "grid-cols-1")}>
             {/* Required */}
             {requiredSkills.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-semibold tracking-widest text-foreground/60 uppercase">
+                <p className="text-[10px] font-semibold tracking-widest text-foreground/60 uppercase">
                   Required
-                </span>
-                <div className="flex flex-wrap gap-1.5">
+                </p>
+                <div className="flex flex-wrap gap-2">
                   {requiredSkills.map((skill: string) => (
                     <span
                       key={skill}
@@ -87,7 +88,7 @@ export function RoleIntelCard({ posting }: RoleIntelCardProps) {
                 <span className="text-[10px] font-semibold tracking-widest text-foreground/60 uppercase">
                   Nice to have
                 </span>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {niceToHave.map((skill: string) => (
                     <span
                       key={skill}

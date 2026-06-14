@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, Loader2, Square } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, Square } from "lucide-react";
 import type { InterviewQuestion } from "@/lib/db/schema";
 
 interface QuestionCardProps {
@@ -69,7 +69,12 @@ export function QuestionCard({ question, defaultOpen = false }: QuestionCardProp
         onClick={() => setIsOpen((v) => !v)}
       >
         <span className={`text-xs font-semibold ${config.textClass}`}>{config.label}</span>
-        <Square className="size-4 text-muted-foreground/40" />
+
+        {isOpen ? (
+          <ChevronUp className="size-4 text-muted-foreground/40" />
+        ) : (
+          <ChevronDown className="size-4 text-muted-foreground/40" />
+        )}
       </div>
 
       {/* Question text */}

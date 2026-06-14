@@ -133,7 +133,7 @@ export async function autofillFromUrl(url: string): Promise<AutofillResponse> {
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000);
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   let response: Response;
   try {

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { userProfiles } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import type { Experience, Education } from "@/features/profile/types";
 
 const requestSchema = z.object({
   jobDescription: z.string().min(20, "Job description too short"),
@@ -26,7 +27,15 @@ export async function POST(req: Request) {
     return new Response("Unauthorised", { status: 401 });
   }
 
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON body" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
   const parsed = requestSchema.safeParse(body);
 
   if (!parsed.success) {
@@ -51,21 +60,8 @@ export async function POST(req: Request) {
   // Format background fields from profile JSON/text
   const summary = profile.summary || "";
   const skills = profile.skills ? JSON.parse(profile.skills).join(", ") : "";
-  interface ExperienceEntry {
-    role: string;
-    company: string;
-    years: string;
-    bullets?: string[];
-  }
-
-  interface EducationEntry {
-    degree: string;
-    institution: string;
-    year: string;
-  }
-
-  const experienceArray = (profile.experience ? JSON.parse(profile.experience) : []) as ExperienceEntry[];
-  const educationArray = (profile.education ? JSON.parse(profile.education) : []) as EducationEntry[];
+  const experienceArray = (profile.experience ? JSON.parse(profile.experience) : []) as Experience[];
+  const educationArray = (profile.education ? JSON.parse(profile.education) : []) as Education[];
   const languagesArray = (profile.languages ? JSON.parse(profile.languages) : []) as string[];
 
   let parsedExperience = "";

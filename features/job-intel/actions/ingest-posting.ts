@@ -29,7 +29,7 @@ export async function ingestPosting(applicationId: string, url?: string, fallbac
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       let response: Response;
       try {
         response = await fetch(jinaUrl, { headers, signal: controller.signal });
@@ -48,7 +48,7 @@ export async function ingestPosting(applicationId: string, url?: string, fallbac
       // Cheerio raw fetch fallback
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         let response: Response;
         try {
           response = await fetch(url, {

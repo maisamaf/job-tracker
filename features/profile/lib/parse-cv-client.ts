@@ -1,21 +1,5 @@
 import { stripJsonFences } from "@/lib/ai/json";
-
-export interface ParsedCv {
-  skills: string[];
-  experience: {
-    company: string;
-    role: string;
-    years: string;
-    bullets: string[];
-  }[];
-  education: {
-    degree: string;
-    institution: string;
-    year: string;
-  }[];
-  languages: string[];
-  summary: string;
-}
+import type { ParsedCV } from "../types";
 
 export async function streamAndParseCv(
   cvText: string,
@@ -25,7 +9,7 @@ export async function streamAndParseCv(
     /** Called with each text chunk as it arrives — use to show a live preview */
     onChunk?: (chunk: string) => void;
   },
-): Promise<ParsedCv> {
+): Promise<ParsedCV> {
   const res = await fetch("/api/profile/parse-cv", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -56,7 +40,7 @@ export async function streamAndParseCv(
   const clean = stripJsonFences(raw);
 
   try {
-    return JSON.parse(clean) as ParsedCv;
+    return JSON.parse(clean) as ParsedCV;
   } catch (err) {
     console.error("Failed to parse CV JSON output:", clean, err);
     throw new Error(

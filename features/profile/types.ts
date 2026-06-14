@@ -15,5 +15,6 @@ export interface ParsedCV {
   skills: string[];
   experience: Experience[];
   education: Education[];
+  languages: string[];
   summary: string;
 }

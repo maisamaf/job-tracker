@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS vector;
+--> statement-breakpoint
 CREATE TYPE "public"."job_posting_status" AS ENUM('pending', 'processing', 'ready', 'failed');--> statement-breakpoint
 CREATE TABLE "gap_analyses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

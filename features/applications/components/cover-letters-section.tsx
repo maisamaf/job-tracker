@@ -3,21 +3,33 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import {
+  Copy,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  Download,
+  FileText,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/lib/utils";
-import type { CoverLetter } from "@/lib/db";
+import { cn, formatFileSize } from "@/lib/utils";
+import type { ApplicationDetail } from "../actions/get-application";
+
+type CoverLetterItem = ApplicationDetail["coverLetters"][number];
 
 interface CoverLettersSectionProps {
   applicationId: string;
-  coverLetters: CoverLetter[];
+  coverLetters: CoverLetterItem[];
 }
 
-function CoverLetterCard({ letter }: { letter: CoverLetter }) {
+function CoverLetterCard({ letter }: { letter: CoverLetterItem }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const isFile = !!letter.fileName;
 
   async function handleCopy() {
+    if (!letter.content) return;
     await navigator.clipboard.writeText(letter.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -28,66 +40,98 @@ function CoverLetterCard({ letter }: { letter: CoverLetter }) {
       {/* Header row */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+          {isFile ? (
+            <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+          )}
           <span className="text-xs text-muted-foreground">
-            Generated{" "}
+            {isFile ? "Uploaded" : "Generated"}{" "}
             {formatDistanceToNow(new Date(letter.createdAt), {
               addSuffix: true,
             })}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            className="h-7 gap-1.5 text-xs"
-          >
-            {copied ? (
-              <>
-                <Check className="h-3 w-3 text-emerald-500" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="h-3 w-3" />
-                Copy
-              </>
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setExpanded((v) => !v)}
-            className="h-7 gap-1.5 text-xs"
-          >
-            {expanded ? (
-              <>
-                <ChevronUp className="h-3 w-3" />
-                Collapse
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-3 w-3" />
-                Expand
-              </>
-            )}
-          </Button>
+          {isFile ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5 text-xs"
+              asChild
+            >
+              <a href={`/api/cover-letter/${letter.id}/download`}>
+                <Download className="h-3 w-3" />
+                Download
+              </a>
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopy}
+                className="h-7 gap-1.5 text-xs"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3 w-3 text-emerald-500" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    Copy
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setExpanded((v) => !v)}
+                className="h-7 gap-1.5 text-xs"
+              >
+                {expanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3" />
+                    Collapse
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3" />
+                    Expand
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Content */}
-      <p
-        className={cn(
-          "px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap transition-all",
-          !expanded && "max-h-[120px] overflow-hidden relative",
-        )}
-      >
-        {letter.content}
-        {!expanded && (
-          <span className="absolute bottom-0 inset-x-0 h-12 bg-linear-to-t from-card to-transparent" />
-        )}
-      </p>
+      {isFile ? (
+        <a
+          href={`/api/cover-letter/${letter.id}/download`}
+          className="flex items-center gap-2 px-4 py-3 text-sm hover:text-primary transition-colors"
+        >
+          <span className="truncate">{letter.fileName}</span>
+          <span className="text-xs text-muted-foreground shrink-0">
+            {formatFileSize(letter.fileSize)}
+          </span>
+        </a>
+      ) : (
+        <p
+          className={cn(
+            "px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap transition-all",
+            !expanded && "max-h-[120px] overflow-hidden relative",
+          )}
+        >
+          {letter.content}
+          {!expanded && (
+            <span className="absolute bottom-0 inset-x-0 h-12 bg-linear-to-t from-card to-transparent" />
+          )}
+        </p>
+      )}
     </div>
   );
 }

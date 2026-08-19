@@ -1,4 +1,5 @@
 import {
+  customType,
   integer,
   pgEnum,
   pgTable,
@@ -9,6 +10,12 @@ import {
   vector,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
 
 export const applicationStatusesEnum = pgEnum("application_statuses", [
   "bookmarked",
@@ -218,9 +225,13 @@ export const coverLetters = pgTable("cover_letters", {
     onDelete: "set null",
   }), // keep cover letters if app deleted
   userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-  content: text("content").notNull(),
+  content: text("content"), // generated/AI letters only; null for uploaded files
   promptContext: text("prompt_context").notNull(),
   model: text("model_used").notNull(),
+  fileName: text("file_name"),
+  fileMimeType: text("file_mime_type"),
+  fileSize: integer("file_size"),
+  fileData: bytea("file_data"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

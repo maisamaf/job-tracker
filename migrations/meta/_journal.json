@@ -50,6 +50,13 @@
       "when": 1781380816025,
       "tag": "0006_dry_blob",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787077331387,
+      "tag": "0007_modern_rage",
+      "breakpoints": true
     }
   ]
 }

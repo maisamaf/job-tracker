@@ -21,6 +21,18 @@ export async function getApplication(id: string) {
             },
             coverLetters: {
                 orderBy: (cl, { desc }) => [desc(cl.createdAt)],
+                columns: {
+                    id: true,
+                    applicationId: true,
+                    userId: true,
+                    content: true,
+                    promptContext: true,
+                    model: true,
+                    fileName: true,
+                    fileMimeType: true,
+                    fileSize: true,
+                    createdAt: true,
+                },
             },
             jobPosting: true,
         },

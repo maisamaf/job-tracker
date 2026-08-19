@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { SavedCoverLetter } from "../actions/get-cover-letters";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@/features/applications/components/trash-icon";
+import { formatFileSize } from "@/lib/utils";
 
 interface CoverLetterCardProps {
   letter: SavedCoverLetter;
@@ -21,8 +22,11 @@ export function CoverLetterCard({
   onDelete,
   deleteDisabled,
 }: CoverLetterCardProps) {
-  const wordCount = letter.content.split(/\s+/).filter(Boolean).length;
-  const excerpt = letter.content.slice(0, 140).trimEnd();
+  const isFile = !!letter.fileName;
+  const wordCount = letter.content
+    ? letter.content.split(/\s+/).filter(Boolean).length
+    : 0;
+  const excerpt = letter.content ? letter.content.slice(0, 140).trimEnd() : "";
   const letterLabel = letter.application
     ? `${letter.application.role} at ${letter.application.company}`
     : "Standalone letter";
@@ -51,11 +55,23 @@ export function CoverLetterCard({
             Standalone letter
           </span>
         )}
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-          {excerpt}
-          {letter.content.length > 140 ? "…" : ""}
+        {isFile ? (
+          <a
+            href={`/api/cover-letter/${letter.id}/download`}
+            className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Download className="h-3 w-3 shrink-0" />
+            <span className="truncate">{letter.fileName}</span>
+          </a>
+        ) : (
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+            {excerpt}
+            {letter.content && letter.content.length > 140 ? "…" : ""}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground/60 mt-1">
+          {isFile ? formatFileSize(letter.fileSize) : `${wordCount} words`}
         </p>
-        <p className="text-xs text-muted-foreground/60 mt-1">{wordCount} words</p>
       </div>
       <span className="shrink-0 text-xs text-muted-foreground whitespace-nowrap">
         {formatDistanceToNow(new Date(letter.createdAt), { addSuffix: true })}

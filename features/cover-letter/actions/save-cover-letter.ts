@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db, coverLetters } from "@/lib/db";
+import { resolveOwnedApplicationId } from "../lib/resolve-owned-application";
 
 interface SaveCoverLetterArgs {
   applicationId?: string;
@@ -20,11 +21,16 @@ export async function saveCoverLetter({
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorised" };
 
+  const ownedApplicationId = await resolveOwnedApplicationId(
+    applicationId,
+    session.user.id,
+  );
+
   const [saved] = await db
     .insert(coverLetters)
     .values({
       userId: session.user.id,
-      applicationId: applicationId ?? null,
+      applicationId: ownedApplicationId,
       content,
       promptContext,
       model: modelUsed,

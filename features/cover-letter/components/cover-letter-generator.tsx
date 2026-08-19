@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CollapsibleTextarea } from "@/components/ui/collapsible-textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApplicationPicker } from "./application-picker";
+import { UploadCoverLetterForm } from "./upload-cover-letter-form";
 import { saveCoverLetter } from "../actions/save-cover-letter";
 import { TONE_OPTIONS, TONE_CONFIG, type CoverLetterTone } from "../types";
 import {
@@ -20,6 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
+  Upload,
 } from "lucide-react";
 import { cn, getCleanJobDescription } from "@/lib/utils";
 
@@ -52,7 +55,10 @@ export function CoverLetterGenerator({
     defaultApplicationId ?? "none",
   );
   const [jobDescription, setJobDescription] = useState(
-    getCleanJobDescription(defaultApp?.description, defaultApp?.jobPosting?.rawText),
+    getCleanJobDescription(
+      defaultApp?.description,
+      defaultApp?.jobPosting?.rawText,
+    ),
   );
   const [additionalContext, setAdditionalContext] = useState("");
   const [tone, setTone] = useState<CoverLetterTone>("professional");
@@ -107,7 +113,9 @@ export function CoverLetterGenerator({
       setSaved(false);
       if (appId !== "none") {
         const app = applications.find((a) => a.id === appId);
-        setJobDescription(getCleanJobDescription(app?.description, app?.jobPosting?.rawText));
+        setJobDescription(
+          getCleanJobDescription(app?.description, app?.jobPosting?.rawText),
+        );
       }
     },
     [applications, setSelectedAppId, setSaved, setJobDescription],
@@ -164,254 +172,279 @@ export function CoverLetterGenerator({
   const canGenerate = jobDescription.trim().length >= 20;
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-      {/* ── Left: Form  */}
-      <div className="flex flex-col gap-5">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Cover letter generator
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Fill in the details below and get a tailored cover letter in
-            seconds.
-          </p>
-        </div>
-
-        {/* Application picker */}
-        <div className="flex flex-col gap-1.5">
-          <Label>Link to application</Label>
-          <ApplicationPicker
-            applications={applications}
-            value={selectedAppId}
-            onChange={handleAppChange}
-          />
-          <p className="text-xs text-muted-foreground">
-            Selecting an app pre-fills the job description.
-          </p>
-        </div>
-
-        {/* Job description */}
-        <div className="flex flex-col gap-1.5">
-          <CollapsibleTextarea
-            id="jobDescription"
-            label={
-              <>
-                Job description{" "}
-                <span className="text-destructive" aria-hidden>
-                  *
-                </span>
-              </>
-            }
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
-            placeholder="Paste the full job description here..."
-            disabled={isLoading}
-            maxLength={300}
-          />
-          {jobDescription.length > 0 && jobDescription.length < 20 && (
-            <p className="text-xs text-destructive">At least 20 characters</p>
-          )}
-        </div>
-
-
-        {/* Tone */}
-        <div className="flex flex-col gap-1.5">
-          <Label>Tone</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {TONE_OPTIONS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTone(t)}
-                disabled={isLoading}
-                className={cn(
-                  "flex flex-col items-start rounded-lg border px-3 py-2.5 text-left transition-colors",
-                  tone === t
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "hover:bg-muted/50",
-                )}
-              >
-                <span className="text-sm font-medium">
-                  {TONE_CONFIG[t].label}
-                </span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {TONE_CONFIG[t].description}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Additional context */}
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowContext((v) => !v)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {showContext ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-            Additional context
-          </button>
-          {showContext && (
-            <Textarea
-              value={additionalContext}
-              onChange={(e) => setAdditionalContext(e.target.value)}
-              placeholder="Anything else to mention — referral name, specific achievements, gap explanation..."
-              className="mt-2 min-h-20 resize-y"
-              disabled={isLoading}
-            />
-          )}
-        </div>
-
-        {/* Generate button */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleGenerate}
-            disabled={!canGenerate || isLoading}
-            className="gap-2"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                Generate cover letter
-              </>
-            )}
-          </Button>
-          {isLoading && (
-            <Button variant="ghost" size="sm" onClick={stop}>
-              Stop
-            </Button>
-          )}
-        </div>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Cover letters</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Generate a tailored cover letter with AI, or upload one
+          you&apos;ve already written.
+        </p>
       </div>
 
-      {/* ── Right: Output  */}
-      <div className="flex flex-col gap-3 lg:sticky lg:top-6">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">
-            {completion ? "Generated letter" : "Output"}
-          </Label>
-          {completion && !isLoading && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setCompletion("");
-                  setSaved(false);
-                }}
-                className="h-7 gap-1.5 text-xs text-muted-foreground"
-              >
-                <RotateCcw className="h-3 w-3" />
-                Clear
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopy}
-                className="h-7 gap-1.5 text-xs"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3 w-3 text-emerald-500" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3" />
-                    Copy
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSave}
-                disabled={saved}
-                className="h-7 gap-1.5 text-xs"
-              >
-                {saved ? (
-                  <>
-                    <Check className="h-3 w-3 text-emerald-500" />
-                    Saved
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-3 w-3" />
-                    Save
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </div>
+      <Tabs defaultValue="generate">
+        <TabsList>
+          <TabsTrigger value="generate" className="gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            Generate with AI
+          </TabsTrigger>
+          <TabsTrigger value="upload" className="gap-1.5">
+            <Upload className="h-3.5 w-3.5" />
+            Upload existing
+          </TabsTrigger>
+        </TabsList>
 
-        {generatorError && (
-          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
-            <AlertTriangle className="size-4.5 mt-0.5 shrink-0 text-destructive" />
-            <div className="flex-1">
-              <p className="font-semibold text-destructive">
-                Generation failed
-              </p>
-              <p className="mt-0.5 text-xs text-destructive/90 leading-relaxed">
-                {generatorError}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Output area */}
-        <div
-          className={cn(
-            "rounded-xl border bg-card min-h-80 transition-colors",
-            isLoading && "border-primary/30",
-          )}
-        >
-          {!completion && !isLoading && (
-            <div className="flex flex-col items-center justify-center h-full p-10 text-center px-6">
-              <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-4">
-                <Sparkles className="h-6 w-6 text-muted-foreground" />
+        <TabsContent value="generate" className="mt-6">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
+            {/* ── Left: Form  */}
+            <div className="flex flex-col gap-5">
+              {/* Application picker */}
+              <div className="flex flex-col gap-1.5">
+                <Label>Link to application</Label>
+                <ApplicationPicker
+                  applications={applications}
+                  value={selectedAppId}
+                  onChange={handleAppChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Selecting an app pre-fills the job description.
+                </p>
               </div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Your cover letter will appear here
-              </p>
-              <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">
-                Fill in the job description, then click generate.
-              </p>
-            </div>
-          )}
 
-          {(completion || isLoading) && (
-            <div className="p-5">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                {completion}
-                {isLoading && (
-                  <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse align-text-bottom" />
+              {/* Job description */}
+              <div className="flex flex-col gap-1.5">
+                <CollapsibleTextarea
+                  id="jobDescription"
+                  label={
+                    <>
+                      Job description{" "}
+                      <span className="text-destructive" aria-hidden>
+                        *
+                      </span>
+                    </>
+                  }
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  placeholder="Paste the full job description here..."
+                  disabled={isLoading}
+                  maxLength={300}
+                />
+                {jobDescription.length > 0 && jobDescription.length < 20 && (
+                  <p className="text-xs text-destructive">
+                    At least 20 characters
+                  </p>
                 )}
-              </p>
+              </div>
+
+              {/* Tone */}
+              <div className="flex flex-col gap-1.5">
+                <Label>Tone</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {TONE_OPTIONS.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTone(t)}
+                      disabled={isLoading}
+                      className={cn(
+                        "flex flex-col items-start rounded-lg border px-3 py-2.5 text-left transition-colors",
+                        tone === t
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "hover:bg-muted/50",
+                      )}
+                    >
+                      <span className="text-sm font-medium">
+                        {TONE_CONFIG[t].label}
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-0.5">
+                        {TONE_CONFIG[t].description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional context */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowContext((v) => !v)}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showContext ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                  Additional context
+                </button>
+                {showContext && (
+                  <Textarea
+                    value={additionalContext}
+                    onChange={(e) => setAdditionalContext(e.target.value)}
+                    placeholder="Anything else to mention — referral name, specific achievements, gap explanation..."
+                    className="mt-2 min-h-20 resize-y"
+                    disabled={isLoading}
+                  />
+                )}
+              </div>
+
+              {/* Generate button */}
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!canGenerate || isLoading}
+                  className="gap-2"
+                  size="lg"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Generate cover letter
+                    </>
+                  )}
+                </Button>
+                {isLoading && (
+                  <Button variant="ghost" size="sm" onClick={stop}>
+                    Stop
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
 
-        {saveError && <p className="text-xs text-destructive">{saveError}</p>}
+            {/* ── Right: Output  */}
+            <div className="flex flex-col gap-3 lg:sticky lg:top-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">
+                  {completion ? "Generated letter" : "Output"}
+                </Label>
+                {completion && !isLoading && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setCompletion("");
+                        setSaved(false);
+                      }}
+                      className="h-7 gap-1.5 text-xs text-muted-foreground"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      Clear
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopy}
+                      className="h-7 gap-1.5 text-xs"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={saved}
+                      className="h-7 gap-1.5 text-xs"
+                    >
+                      {saved ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Saved
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-3 w-3" />
+                          Save
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-        {/* Word count */}
-        {completion && (
-          <p className="text-xs text-muted-foreground text-right tabular-nums">
-            {completion.split(/\s+/).filter(Boolean).length} words
-          </p>
-        )}
-      </div>
+              {generatorError && (
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertTriangle className="size-4.5 mt-0.5 shrink-0 text-destructive" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-destructive">
+                      Generation failed
+                    </p>
+                    <p className="mt-0.5 text-xs text-destructive/90 leading-relaxed">
+                      {generatorError}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Output area */}
+              <div
+                className={cn(
+                  "rounded-xl border bg-card min-h-80 transition-colors",
+                  isLoading && "border-primary/30",
+                )}
+              >
+                {!completion && !isLoading && (
+                  <div className="flex flex-col items-center justify-center h-full p-10 text-center px-6">
+                    <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-4">
+                      <Sparkles className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Your cover letter will appear here
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">
+                      Fill in the job description, then click generate.
+                    </p>
+                  </div>
+                )}
+
+                {(completion || isLoading) && (
+                  <div className="p-5">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                      {completion}
+                      {isLoading && (
+                        <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse align-text-bottom" />
+                      )}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {saveError && (
+                <p className="text-xs text-destructive">{saveError}</p>
+              )}
+
+              {/* Word count */}
+              {completion && (
+                <p className="text-xs text-muted-foreground text-right tabular-nums">
+                  {completion.split(/\s+/).filter(Boolean).length} words
+                </p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="upload" className="mt-6">
+          <UploadCoverLetterForm
+            applications={applications}
+            defaultApplicationId={defaultApplicationId}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -4,9 +4,12 @@ import { db, coverLetters } from "@/lib/db";
 
 export type SavedCoverLetter = {
   id: string;
-  content: string;
+  content: string | null;
   promptContext: string | null;
   model: string | null;
+  fileName: string | null;
+  fileMimeType: string | null;
+  fileSize: number | null;
   createdAt: Date;
   application: { id: string; company: string; role: string } | null;
 };
@@ -36,6 +39,16 @@ export async function getCoverLetters(
     const [rows, [{ total }]] = await Promise.all([
       db.query.coverLetters.findMany({
         where,
+        columns: {
+          id: true,
+          content: true,
+          promptContext: true,
+          model: true,
+          fileName: true,
+          fileMimeType: true,
+          fileSize: true,
+          createdAt: true,
+        },
         with: {
           application: {
             columns: { id: true, company: true, role: true },
